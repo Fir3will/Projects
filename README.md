@@ -23,4 +23,58 @@ _[Traveling Salesperson Algorithm](../master/Coding%20Train%20src/main/traveling
 _[Genetic Algorithm of the Traveling Salesperson Algorithm](../master/Coding%20Train%20src/main/tsp_ga)_  
 
 ## Game Base
-This is the code for the Java game engine that I created.
+This is the code for the Java game engine that I created. The system itself used Swing and draws to a `JPanel`. But even so, it provides a lot of usable interfaces for proper rendering. Here's an example of what a starting file would look like
+```java
+import main.G2D;
+import main.Game;
+import main.GameSettings;
+import main.GameSettings.Quality;
+import main.Main;
+import java.awt.Color;
+
+public class Main extends Game
+{
+  private int x;
+  
+  public Main()
+  {
+    System.out.println("Initialization");
+  }
+  
+  @Override
+  public void update(int ticks)
+  {
+    System.out.println("Runs every tick.");
+  }
+  
+  @Override
+  public void paint(G2D g2d)
+  {
+    g2d.setColor(Color.RED);
+    g2d.drawRectangle(0, 0, x++, g2d.height - 1);
+    System.out.println("Runs every tick also.");
+    // But you can use g2d to render to the canvas.
+  }
+	
+	public static void main(String[] args)
+	{
+		Main game = new Main();
+		
+		GameSettings settings = new GameSettings();
+		settings.title = "Test";
+		settings.version = "0.0.1";
+		settings.quality = Quality.POOR;
+		settings.width = 1024;
+		settings.height = 768;
+		settings.showFPS = true;
+		settings.background = Color.WHITE;
+		settings.maxFPS = -1;
+		
+		Main.initialize(game, settings);
+	}
+}
+```
+
+Very easy to use and fully customizeable. Some might even consider it vunerable.
+## Library
+This project contains all the practical code snippets that I've collected over the years. I've concatenated it into one library which is included in `Game Base` and also `Coding Train`
