@@ -16,7 +16,6 @@ package main.sound;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -43,7 +42,7 @@ public class SoundMapping extends Game
 	
 	public SoundMapping() throws Exception
 	{
-		AudioInputStream ais = AudioSystem.getAudioInputStream(new File("c304-2.wav"));
+		AudioInputStream ais = AudioSystem.getAudioInputStream(SoundMapping.class.getResource("/main/sound/test.wav"));
 		fmt = ais.getFormat();
 		TargetDataLine dl = AudioSystem.getTargetDataLine(fmt);
 		int bufSize = 1024;

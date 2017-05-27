@@ -22,6 +22,7 @@ _[Sudoku](../master/Coding%20Train%20src/main/sound)_
 _[Traveling Salesperson Algorithm](../master/Coding%20Train%20src/main/travelingsalesperson)_  
 _[Genetic Algorithm of the Traveling Salesperson Algorithm](../master/Coding%20Train%20src/main/tsp_ga)_  
 
+All mini-projects have their own README.md files in which class UMLs are provided and more in-depth explanations of each project is provided.
 ## Game Base
 This is the code for the Java game engine that I created. The system itself used Swing and draws to a `JPanel`. But even so, it provides a lot of usable interfaces for proper rendering. Here's an example of what a starting file would look like
 ```java
