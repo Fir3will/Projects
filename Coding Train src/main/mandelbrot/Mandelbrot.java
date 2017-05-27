@@ -80,6 +80,8 @@ public class Mandelbrot extends Game
 
 	public static void main(String[] args)
 	{
+		System.setProperty("Main.WIDTH", "1024");
+		System.setProperty("Main.HEIGHT", "768");
 		Mandelbrot game = new Mandelbrot();
 		
 		GameSettings settings = new GameSettings();
