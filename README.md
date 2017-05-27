@@ -57,22 +57,22 @@ public class Main extends Game
     // But you can use g2d to render to the canvas.
   }
 	
-	public static void main(String[] args)
-	{
-		Main game = new Main();
+  public static void main(String[] args)
+  {
+    Main game = new Main();
 		
-		GameSettings settings = new GameSettings();
-		settings.title = "Test";
-		settings.version = "0.0.1";
-		settings.quality = Quality.POOR;
-		settings.width = 1024;
-		settings.height = 768;
-		settings.showFPS = true;
-		settings.background = Color.WHITE;
-		settings.maxFPS = -1;
-		
-		Main.initialize(game, settings);
-	}
+    GameSettings settings = new GameSettings();
+    settings.title = "Test";
+    settings.version = "0.0.1";
+    settings.quality = Quality.POOR;
+    settings.width = 1024;
+    settings.height = 768;
+    settings.showFPS = true;
+    settings.background = Color.WHITE;
+    settings.maxFPS = -1;
+
+    Main.initialize(game, settings);
+  }
 }
 ```
 
