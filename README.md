@@ -79,3 +79,5 @@ public class Main extends Game
 Very easy to use and fully customizeable. Some might even consider it vunerable.
 ## Library
 This project contains all the practical code snippets that I've collected over the years. I've concatenated it into one library which is included in `Game Base` and also `Coding Train`
+
+*I should really add comments into the code*
