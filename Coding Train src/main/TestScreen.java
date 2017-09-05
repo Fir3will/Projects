@@ -14,6 +14,8 @@
  **************************************************************************/
 package main;
 
+import java.awt.Color;
+
 import main.gui.GuiScreen;
 import main.gui.widget.GuiButton;
 import main.gui.widget.GuiTextField;
@@ -21,6 +23,7 @@ import main.gui.widget.GuiTextField;
 public class TestScreen extends GuiScreen
 {
 	public final Testing game;
+	private GuiTextField textField;
 	
 	public TestScreen(Testing game)
 	{
@@ -31,6 +34,10 @@ public class TestScreen extends GuiScreen
 	{
 		super.initialize(handler);
 		addWidget(new GuiButton(this, 0, "Hello", 450, 100));
-		addWidget(new GuiTextField(this, 100, 100).setText("Hello").setHorizontalAlignment(GuiTextField.HORIZ_LEFT));
+		addWidget(textField = new GuiTextField(this, 100, 100).setHorizontalAlignment(GuiTextField.HORIZ_LEFT));
+		textField.setText("Ello' Mate!");
+		textField.setColor(Color.WHITE);
+		textField.setTextColor(Color.WHITE);
+		setFocus(textField);
 	}
 }

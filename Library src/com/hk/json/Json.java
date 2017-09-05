@@ -83,7 +83,9 @@ public class Json
 	{
 		try
 		{
-			writeObject(json, new FileOutputStream(file));
+			FileOutputStream fos = new FileOutputStream(file);
+			writeObject(json, fos);
+			fos.close();
 		}
 		catch (Exception e)
 		{
@@ -150,12 +152,12 @@ public class Json
 		{
 			return new JsonString(String.valueOf(value));
 		}
-		return null;
+		return JsonSerializer.toJson(value);
 	}
 
-	public static Object jsonToObject(JsonValue value)
+	public static Object jsonToObject(Class<?> cls, JsonValue value)
 	{
-		if (value instanceof JsonNull || value == null)
+		if (value.isNull() || value == null)
 		{
 			return null;
 		}
@@ -175,7 +177,7 @@ public class Json
 		{
 			return ((JsonString) value).getValue();
 		}
-		return value;
+		return JsonSerializer.fromJson(value, cls);
 	}
 
 	private Json()

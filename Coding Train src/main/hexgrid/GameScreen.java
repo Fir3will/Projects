@@ -138,7 +138,7 @@ public class GameScreen extends GuiScreen
 	
 	public void mouseMoved(float x, float y)
 	{
-		if(handler.isButton(MouseEvent.BUTTON3))
+		if(getHandler().isButton(MouseEvent.BUTTON3))
 		{
 			if(lastPress.x != -1 && lastPress.y != -1)
 			{

@@ -15,6 +15,7 @@
 package com.hk.io;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -68,6 +69,28 @@ public final class IOUtil
 	public static String readString(InputStream in, Charset charset)
 	{
 		return new String(readAll(in), charset);
+	}
+
+	public static void closeQuietly(Closeable c)
+	{
+		try
+		{
+			c.close();
+		}
+		catch (IOException e)
+		{}
+	}
+
+	public static void closeWithRuntimeException(Closeable c)
+	{
+		try
+		{
+			c.close();
+		}
+		catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	private IOUtil()

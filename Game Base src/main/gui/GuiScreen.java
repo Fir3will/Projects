@@ -24,7 +24,7 @@ import main.gui.widget.GuiButton;
 
 public abstract class GuiScreen implements EventListener
 {
-	protected Handler handler;
+	private Handler handler;
 	private final List<GuiWidget> widgets, addWidgets, removeWidgets;
 	private GuiWidget focus;
 
@@ -105,37 +105,60 @@ public abstract class GuiScreen implements EventListener
 	public void onGuiClosed()
 	{}
 
+	public void setFocus(GuiWidget widget)
+	{
+		focus = widget;
+	}
+
 	public GuiWidget getFocus()
 	{
 		return focus;
+	}
+
+	public Handler getHandler()
+	{
+		return handler;
 	}
 
 	public void mouse(float x, float y, boolean pressed, int button)
 	{
 		if (!pressed)
 		{
-			focus = null;
+			GuiWidget clickedOn = null;
 			for (int i = 0; i < widgets.size(); i++)
 			{
 				GuiWidget widget = widgets.get(i);
 				if (widget.bounds.contains(x, y))
 				{
-					if (widget.needsFocus())
+					clickedOn = widget;
+					break;
+
+				}
+			}
+			if (clickedOn != null)
+			{
+				if (clickedOn.needsFocus())
+				{
+					if (focus == clickedOn)
 					{
-						if (focus == widget)
-						{
-							widget.onClick(x, y, button);
-						}
-						else
-						{
-							focus = widget;
-						}
+						clickedOn.onClick(x, y, button);
 					}
 					else
 					{
-						widget.onClick(x, y, button);
+						focus = clickedOn;
+						focus.onClick(x, y, button);
 					}
 				}
+				else
+				{
+					clickedOn.onClick(x, y, button);
+					clickedOn = null;
+				}
+				focus = clickedOn;
+			}
+			else
+			{
+				focus = null;
 			}
 		}
 	}
