@@ -29,7 +29,7 @@ import main.GameSettings.Quality;
 
 public class Main extends JPanel implements ActionListener
 {
-	public static final int WIDTH = Integer.getInteger("Main.WIDTH", 1920), HEIGHT = Integer.getInteger("Main.HEIGHT", 1080);
+	public static int WIDTH = Integer.getInteger("Main.WIDTH", 1920), HEIGHT = Integer.getInteger("Main.HEIGHT", 1080);
 	private final GameSettings settings;
 	private final Game game;
 	private final G2D g2d;
@@ -47,22 +47,32 @@ public class Main extends JPanel implements ActionListener
 
 		g2d = new G2D(WIDTH, HEIGHT);
 		game.handler = handler = new Handler(game);
-		timer = new Timer((int) (1000F / settings.maxFPS), this);
+		timer = new Timer(0, this);
 		lastFPSCheck = System.currentTimeMillis();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
+		long start = System.nanoTime();
+		
 		if (settings.constantGCCalls)
 		{
 			System.gc();
 		}
+		
+		long wait = (long) (settings.maxFPS > 0 ? 1E9 / (settings.maxFPS * (4D / 3D)) : 0);
+        
 		handler.w = getWidth();
 		handler.h = getHeight();
 		handler.update();
 		game.update(game.ticks++);
 		repaint();
+		
+		if(settings.maxFPS > 0)
+		{
+			do {} while(wait > System.nanoTime() - start);
+		}
 	}
 
 	@Override
@@ -76,12 +86,11 @@ public class Main extends JPanel implements ActionListener
 		{
 			long time = System.currentTimeMillis();
 			long elapsed = time - lastFPSCheck;
+			lastFPSCheck = time;
 			double fps = 1D / (elapsed / 1000D / 30D);
 			fps *= 100;
 			fps = (int) fps;
 			fps /= 100D;
-
-			lastFPSCheck = time;
 
 			if (settings.showFPS)
 			{

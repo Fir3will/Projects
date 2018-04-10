@@ -238,6 +238,65 @@ public class MathUtil
 		amt = clamp(amt, 1F, 0F);
 		return a * amt + b * (1F - amt);
 	}
+	
+	public static String toProperByteHex(long n)
+	{
+		return toProperHex(Long.MAX_VALUE & n, 2);
+	}
+	
+	public static String toProperHex(long n)
+	{
+		return toProperHex(Long.MAX_VALUE & n, 8);
+	}
+	
+	public static String toProperLongHex(long n)
+	{
+		return toProperHex(Long.MAX_VALUE & n, 16);
+	}
+	
+	public static String toProperHex(long n, int amt)
+	{
+		String s = Long.toHexString(Long.MAX_VALUE & n);
+		while(s.length() < amt)
+		{
+			s = '0' + s;
+		}
+		return "0x" + s.toUpperCase();
+	}
+
+	public static float max(float... fs)
+	{
+		float max = 0;
+		if(fs.length > 0)
+		{
+			max = fs[0];
+			for(float f : fs)
+			{
+				if(f > max)
+				{
+					max = f;
+				}
+			}
+		}
+		return max;
+	}
+
+	public static double max(double... ds)
+	{
+		double max = 0;
+		if(ds.length > 0)
+		{
+			max = ds[0];
+			for(double d : ds)
+			{
+				if(d > max)
+				{
+					max = d;
+				}
+			}
+		}
+		return max;
+	}
 
 	private MathUtil()
 	{}

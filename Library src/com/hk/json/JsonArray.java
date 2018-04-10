@@ -15,10 +15,11 @@
 package com.hk.json;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class JsonArray extends JsonValue
+public class JsonArray extends JsonValue implements Iterable<JsonValue>
 {
 	final List<JsonValue> values;
 
@@ -121,5 +122,34 @@ public class JsonArray extends JsonValue
 	public int hashCode()
 	{
 		return 53 + Objects.hashCode(values);
+	}
+
+	@Override
+	public Iterator<JsonValue> iterator()
+	{
+		return new Itr(values);
+	}
+	
+	private static class Itr implements Iterator<JsonValue>
+	{
+		private final List<JsonValue> values;
+		private int index = 0;
+		
+		private Itr(List<JsonValue> values)
+		{
+			this.values = new ArrayList<>(values);
+		}
+		
+		@Override
+		public boolean hasNext()
+		{
+			return index < values.size();
+		}
+
+		@Override
+		public JsonValue next()
+		{
+			return values.get(index++);
+		}
 	}
 }

@@ -17,19 +17,19 @@ package main.beesweeper;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.hk.math.Rand;
-import com.sun.glass.events.KeyEvent;
 
 import main.G2D;
 import main.Game;
 import main.GameSettings;
 import main.GameSettings.Quality;
 import main.Main;
+
+import com.hk.math.Rand;
 
 public class Beesweeper extends Game
 {	

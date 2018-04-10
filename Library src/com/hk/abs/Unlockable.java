@@ -12,12 +12,13 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package com.hk.abs;
 
-public class Main
+public interface Unlockable extends Lockable
 {
-	public static void main(String[] args)
-	{
-		
-	}
+	public boolean isLocked();
+	
+	public void lock();
+	
+	public void unlock();
 }

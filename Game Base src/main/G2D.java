@@ -27,6 +27,7 @@ import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.ImageIcon;
 
 public class G2D
@@ -232,7 +233,7 @@ public class G2D
 
 	public G2D drawPoint(double x, double y)
 	{
-		drawRectangle(x, y, 1, 1);
+		g2d.drawLine((int) x, (int) y, (int) x, (int) y);
 		return this;
 	}
 
@@ -244,7 +245,7 @@ public class G2D
 	public G2D drawEllipse(double x, double y, double width, double height)
 	{
 		circle.x = getCenteredX(x, width);
-		circle.y = isEnabled(G_CENTER) ? y - height / 2 : y;
+		circle.y = getCenteredY(y, height);
 		circle.width = width;
 		circle.height = height;
 		return drawOrFillShape(circle);
@@ -256,7 +257,8 @@ public class G2D
 		line.x2 = x2;
 		line.y1 = y1;
 		line.y2 = y2;
-		return drawOrFillShape(line);
+		g2d.draw(line);
+		return this;
 	}
 
 	public G2D drawString(Object s, double x, double y)
@@ -264,8 +266,25 @@ public class G2D
 		String str = String.valueOf(s);
 		Rectangle2D r = g2d.getFontMetrics().getStringBounds(str, g2d);
 		float x1 = (float) getCenteredX(x, r.getWidth());
-		float y1 = (float) getCenteredY(y, r.getHeight());
+		float y1 = (float) getCenteredY(y, -r.getHeight());
 		g2d.drawString(str, x1, y1);
+		return this;
+	}
+
+	public G2D drawShadowedString(Object s, double x, double y, Color shadowColor)
+	{
+		pushColor();
+		setColor(shadowColor);
+		drawString(s, x - 1, y);
+		drawString(s, x + 1, y);
+		drawString(s, x, y - 1);
+		drawString(s, x, y + 1);
+		drawString(s, x - 1, y - 1);
+		drawString(s, x + 1, y - 1);
+		drawString(s, x - 1, y + 1);
+		drawString(s, x + 1, y + 1);
+		popColor();
+		drawString(s, x, y);
 		return this;
 	}
 
@@ -358,7 +377,7 @@ public class G2D
 
 	private double getCenteredY(double y, double height)
 	{
-		return isEnabled(G_CENTER) ? y + height / 2 : y;
+		return isEnabled(G_CENTER) ? y - height / 2 : y;
 	}
 
 	public Graphics2D getGraphics()

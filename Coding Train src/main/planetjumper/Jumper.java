@@ -15,20 +15,20 @@
 package main.planetjumper;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.hk.math.FloatMath;
-import com.hk.math.MathUtil;
-import com.hk.math.vector.Vector2F;
-import com.sun.glass.events.KeyEvent;
 
 import main.G2D;
 import main.Game;
 import main.GameSettings;
 import main.GameSettings.Quality;
 import main.Main;
+
+import com.hk.math.FloatMath;
+import com.hk.math.MathUtil;
+import com.hk.math.vector.Vector2F;
 
 public class Jumper extends Game
 {

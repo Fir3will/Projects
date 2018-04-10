@@ -15,6 +15,7 @@
 package main.maze;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -22,15 +23,14 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
-import com.hk.math.Rand;
-import com.hk.math.vector.Color3F;
-import com.sun.glass.events.KeyEvent;
-
 import main.G2D;
 import main.Game;
 import main.GameSettings;
 import main.GameSettings.Quality;
 import main.Main;
+
+import com.hk.math.Rand;
+import com.hk.math.vector.Color3F;
 
 public class Maze extends Game
 {

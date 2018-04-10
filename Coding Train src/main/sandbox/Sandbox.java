@@ -15,9 +15,8 @@
 package main.sandbox;
 
 import java.awt.Color;
-
-import com.hk.math.Rand;
-import com.hk.math.vector.Vector2F;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import main.G2D;
 import main.Game;
@@ -25,88 +24,148 @@ import main.GameSettings;
 import main.GameSettings.Quality;
 import main.Main;
 
+import com.hk.math.Rand;
+import com.hk.math.vector.Vector2F;
+
 public class Sandbox extends Game
 {
-	private final int size = 100;
+	private final int size = 500;
 	private final Ball[] balls;
-	private double lastTime = -1;
+	private int selectedBall = -1;
+	private boolean paused = false;
 	
 	public Sandbox()
 	{
 		balls = new Ball[size];
 		for(int i = 0; i < size; i++)
 		{
-			balls[i] = new Ball(5F);
+			balls[i] = new Ball(2);
 			balls[i].pos.set(Rand.nextFloat(Main.WIDTH), Rand.nextFloat(Main.HEIGHT));
-			balls[i].vel.set(Vector2F.randUnitVector().mult(20));
+			balls[i].vel.set(Vector2F.randUnitVector());
 		}
 	}
 
 	@Override
 	public void update(int ticks)
 	{
-		double time = System.currentTimeMillis();
-		if(lastTime == -1)
+		if(!paused)
 		{
-			lastTime = time;
-		}
-		if(lastTime != time)
-		{
-			float df = (float) Math.min((time - lastTime) * 1E3D, 1D / 30D);
 			for(int i = 0; i < size; i++)
 			{
-				balls[i].update(df);
+				balls[i].update(!getHandler().isKeyDown(KeyEvent.VK_SPACE));
 			}
-			
+				
 			for(int i = 0; i < size; i++)
 			{
 				for(int j = i + 1; j < size; j++)
 				{
 					if(balls[i].collided(balls[j]))
 					{
-						Vector2F ap = balls[i].pos.clone();
-						Vector2F av = balls[i].vel.clone();
-						Vector2F bp = balls[j].pos.clone();
-						Vector2F bv = balls[j].vel.clone();
-						balls[i].resolveCollision(df, bp, bv, balls[j].radius);
-						balls[j].resolveCollision(df, ap, av, balls[i].radius);
+						balls[i].resolveCollision(balls[j]);
 					}
 				}
 			}
+			
+			if(selectedBall != -1)
+			{
+				Ball b = balls[selectedBall];
+				b.vel.subtractLocal(b.pos.subtract(getHandler().mouseX(), getHandler().mouseY()).divideLocal(200));
+			}
 		}
-		lastTime = time;
 	}
 
 	@Override
 	public void paint(G2D g2d)
 	{
-		g2d.enable(G2D.G_CENTER | G2D.G_FILL);
+		g2d.enable(G2D.G_CENTER);
 		for(int i = 0; i < size; i++)
 		{
+			g2d.enable(G2D.G_FILL);
 			g2d.setColor(balls[i].clr);
 			g2d.drawCircle(balls[i].pos.x, balls[i].pos.y, balls[i].radius);
+			g2d.disable(G2D.G_FILL);
+			g2d.setColor(Color.BLACK);
+			g2d.drawCircle(balls[i].pos.x, balls[i].pos.y, balls[i].radius);
 		}
-		g2d.disable(G2D.G_CENTER | G2D.G_FILL);
+		g2d.disable(G2D.G_CENTER);
+		
+		g2d.setColor(Color.BLACK);
+		if(selectedBall != -1)
+		{
+			Ball b = balls[selectedBall];
+			g2d.drawLine(b.pos.x, b.pos.y, getHandler().mouseX(), getHandler().mouseY());
+		}
 	}
 	
-	private Vector2F startSpot;
-
 	@Override
 	public void mouse(float x, float y, boolean pressed, int button)
 	{
-		if(pressed)
+		if(button == MouseEvent.BUTTON1)
 		{
-			startSpot = startSpot == null ? new Vector2F(x, y) : startSpot;
+			if(pressed)
+			{
+				if(selectedBall == -1)
+				{
+					for(int i = 0; i < size; i++)
+					{
+						if(balls[i].inBounds(x, y))
+						{
+							selectedBall = i;
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				selectedBall = -1;
+			}
 		}
-		else
+		else if(button == MouseEvent.BUTTON2)
 		{
-			startSpot = null;
+			for(int i = 0; i < size; i++)
+			{
+				if(balls[i].pos.distance(x, y) < 25)
+				{
+					balls[i].vel.subtractLocal(balls[i].pos.subtract(x, y).normalizeLocal());
+				}
+			}
+		}
+		else if(button == MouseEvent.BUTTON3)
+		{
+			for(int i = 0; i < size; i++)
+			{
+				if(balls[i].pos.distance(x, y) < 25)
+				{
+					balls[i].vel.addLocal(balls[i].pos.subtract(x, y).normalizeLocal());
+				}
+			}
 		}
 	}
 
-	@Override
-	public void mouseMoved(float x, float y)
+	public void key(int key, char keyChar, boolean pressed)
 	{
+		if(!pressed)
+		{
+			if(key == KeyEvent.VK_X)
+			{
+				paused = !paused;
+			}
+			else if(key == KeyEvent.VK_Q)
+			{
+				for(int i = 0; i < size; i++)
+				{
+					balls[i].vel.zero();
+				}
+			}
+			else if(key == KeyEvent.VK_W)
+			{
+				for(int i = 0; i < size; i++)
+				{
+					balls[i].vel.negateLocal();
+				}
+			}
+		}
 	}
 
 	public static void main(String[] args)
@@ -115,14 +174,14 @@ public class Sandbox extends Game
 		settings.title = "Sandbox";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
-		settings.width = 1024;
-		settings.height = 768;
+		settings.width = 1600;
+		settings.height = 900;
 		settings.showFPS = true;
 		settings.background = Color.WHITE;
-		settings.maxFPS = -1;
+		settings.maxFPS = 60;
 
-		System.setProperty("Main.WIDTH", String.valueOf(settings.width));
-		System.setProperty("Main.HEIGHT", String.valueOf(settings.height));
+		System.setProperty("Main.WIDTH", String.valueOf(settings.width / 4));
+		System.setProperty("Main.HEIGHT", String.valueOf(settings.height / 4));
 
 		Sandbox game = new Sandbox();
 		Main.initialize(game, settings);

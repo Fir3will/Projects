@@ -140,9 +140,9 @@ public final class Vector3F implements Cloneable, Serializable
 
 	public Vector3F interpolate(float x, float y, float z, float amt)
 	{
-		x = (1F - amt) * this.x + amt * x;
-		y = (1F - amt) * this.y + amt * y;
-		z = (1F - amt) * this.z + amt * z;
+		this.x = (1F - amt) * this.x + amt * x;
+		this.y = (1F - amt) * this.y + amt * y;
+		this.z = (1F - amt) * this.z + amt * z;
 		return this;
 	}
 
@@ -212,10 +212,7 @@ public final class Vector3F implements Cloneable, Serializable
 
 	public Vector3F set(float[] arr)
 	{
-		x = arr[0];
-		y = arr[1];
-		z = arr[2];
-		return this;
+		return set(arr, 0);
 	}
 
 	public Vector3F set(float[] arr, int off)
@@ -224,6 +221,17 @@ public final class Vector3F implements Cloneable, Serializable
 		y = arr[off + 1];
 		z = arr[off + 2];
 		return this;
+	}
+	
+	public void set(int index, float val)
+	{
+		switch(index)
+		{
+			case 0: x = val; return;
+			case 1: y = val; return;
+			case 2: z = val; return;
+		}
+		throw new IllegalArgumentException(index + " must be 0, 1, or 2.");
 	}
 
 	public float getX()
@@ -257,6 +265,17 @@ public final class Vector3F implements Cloneable, Serializable
 		arr[off + 1] = y;
 		arr[off + 2] = z;
 		return arr;
+	}
+	
+	public float get(int index)
+	{
+		switch(index)
+		{
+		case 0: return x;
+		case 1: return y;
+		case 2: return z;
+		}
+		throw new IllegalArgumentException(index + " must be 0, 1, or 2.");
 	}
 
 	public Vector3F normalize()

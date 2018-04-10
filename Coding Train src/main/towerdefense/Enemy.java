@@ -53,7 +53,7 @@ public class Enemy
 			
 			if(currentSpot == game.path.size())
 			{
-				game.health--;
+				game.health = Math.max(game.health - 1, 0);
 				isDead = true;
 			}
 		}
@@ -63,15 +63,39 @@ public class Enemy
 		}
 	}
 	
-	public void paint(G2D g2d)
+	public void paint(G2D g2d, boolean hoverOver)
 	{
 		g2d.enable(G2D.G_CENTER | G2D.G_FILL);
 		g2d.setColor(Color.WHITE);
 		g2d.drawCircle(position.x, position.y, 5);
 		g2d.setColor(Color.BLACK);
-		float f = (health / (float) maxHealth) * 4F;
+		float f = (health / (float) maxHealth) * 4.8F;
 		g2d.drawCircle(position.x, position.y, f);
 		g2d.disable(G2D.G_CENTER | G2D.G_FILL);
+		
+		if(hoverOver)
+		{
+			float dlx = Math.max(0, Math.min(g2d.width - 40, position.x));
+			float dly = Math.max(0, Math.min(g2d.height - 24, position.y + 24));
+			
+			g2d.enable(G2D.G_CENTER | G2D.G_FILL);
+			
+			g2d.setColor(Color.BLACK);
+			g2d.drawRectangle(dlx, dly, 40, 24);
+			float w = 30 * (health / (float) maxHealth);
+			
+			g2d.disable(G2D.G_CENTER);
+			g2d.setColor(Color.RED);
+			g2d.drawRectangle(dlx - 15, dly - 5, w, 10);
+			
+			g2d.disable(G2D.G_FILL);
+			g2d.enable(G2D.G_CENTER);
+			g2d.setColor(Color.WHITE);
+			g2d.drawRectangle(dlx, dly, 40, 24);
+			g2d.drawRectangle(dlx, dly, 30, 10);
+
+			g2d.disable(G2D.G_CENTER);
+		}
 	}
 	
 	public boolean isDead()

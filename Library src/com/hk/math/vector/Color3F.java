@@ -15,8 +15,10 @@
 package com.hk.math.vector;
 
 import java.io.Serializable;
+
 import com.hk.array.ArrayUtil;
 import com.hk.math.MathUtil;
+import com.hk.math.Rand;
 
 public final class Color3F implements Serializable, Cloneable
 {
@@ -427,11 +429,11 @@ public final class Color3F implements Serializable, Cloneable
 
 	public int toRGB()
 	{
-		int argb = 0;
-		argb |= getRedInt() << 16;
-		argb |= getGreenInt() << 8;
-		argb |= getBlueInt();
-		return argb | 0xFF000000;
+		int rgb = 0;
+		rgb |= getRedInt() << 16;
+		rgb |= getGreenInt() << 8;
+		rgb |= getBlueInt();
+		return rgb | 0xFF000000;
 	}
 
 	public String toHexString()
@@ -441,7 +443,7 @@ public final class Color3F implements Serializable, Cloneable
 		{
 			s = '0' + s;
 		}
-		return s;
+		return s.toUpperCase();
 	}
 
 	public Color3F clamp()
@@ -463,10 +465,10 @@ public final class Color3F implements Serializable, Cloneable
 	public int hashCode()
 	{
 		int hash = 11;
-		hash = 39 * hash + Float.floatToIntBits(r);
-		hash = 39 * hash + Float.floatToIntBits(g);
-		hash = 39 * hash + Float.floatToIntBits(b);
-		hash = 39 * hash + Float.floatToIntBits(a);
+		hash = 41 * hash + Float.floatToIntBits(r);
+		hash = 41 * hash + Float.floatToIntBits(g);
+		hash = 41 * hash + Float.floatToIntBits(b);
+		hash = 41 * hash + Float.floatToIntBits(a);
 		return hash;
 	}
 
@@ -481,6 +483,19 @@ public final class Color3F implements Serializable, Cloneable
 	{
 		return "(" + r + ", " + g + ", " + b + ", " + a + ")";
 	}
+	
+	public static Color3F randColor()
+	{
+		return new Color3F(Rand.nextFloat(), Rand.nextFloat(), Rand.nextFloat());
+	}
 
+	public static final Color3F WHITE = new Color3F(1, 1, 1);
+	public static final Color3F BLACK = new Color3F(0, 0, 0);
+	public static final Color3F RED = new Color3F(1, 0, 0);
+	public static final Color3F GREEN = new Color3F(0, 1, 0);
+	public static final Color3F BLUE = new Color3F(0, 0, 1);
+	public static final Color3F YELLOW = new Color3F(1, 1, 0);
+	public static final Color3F CYAN = new Color3F(0, 1, 1);
+	public static final Color3F PURPLE = new Color3F(1, 0, 1);
 	private static final long serialVersionUID = -3172866587807242195L;
 }

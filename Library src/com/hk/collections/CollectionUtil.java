@@ -12,12 +12,10 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package com.hk.collections;
 
-public class Main
+public class CollectionUtil
 {
-	public static void main(String[] args)
-	{
-		
-	}
+	private CollectionUtil()
+	{}
 }

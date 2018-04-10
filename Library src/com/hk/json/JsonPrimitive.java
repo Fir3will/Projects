@@ -14,7 +14,7 @@
  **************************************************************************/
 package com.hk.json;
 
-abstract class JsonPrimitive extends JsonValue
+public abstract class JsonPrimitive extends JsonValue
 {
 	protected JsonPrimitive()
 	{}

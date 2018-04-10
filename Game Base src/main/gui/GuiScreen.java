@@ -19,6 +19,7 @@ import java.util.List;
 import main.G2D;
 import main.Handler;
 import main.gui.event.ActionEvent;
+import main.gui.event.ButtonEvent;
 import main.gui.event.EventListener;
 import main.gui.widget.GuiButton;
 
@@ -93,9 +94,9 @@ public abstract class GuiScreen implements EventListener
 	@Override
 	public void actionPerformed(ActionEvent event)
 	{
-		if (event instanceof GuiButton.ButtonEvent)
+		if (event instanceof ButtonEvent)
 		{
-			buttonPressed(((GuiButton.ButtonEvent) event).button, ((GuiButton.ButtonEvent) event).mouseButton);
+			buttonPressed(((ButtonEvent) event).button, ((ButtonEvent) event).mouseButton);
 		}
 	}
 
@@ -105,9 +106,10 @@ public abstract class GuiScreen implements EventListener
 	public void onGuiClosed()
 	{}
 
-	public void setFocus(GuiWidget widget)
+	public GuiWidget setFocus(GuiWidget widget)
 	{
 		focus = widget;
+		return widget;
 	}
 
 	public GuiWidget getFocus()

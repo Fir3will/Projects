@@ -16,7 +16,7 @@ package com.hk.math.expression;
 
 public class ExpressionFormatException extends Exception
 {
-	public ExpressionFormatException(String message)
+	ExpressionFormatException(String message)
 	{
 		super(message);
 	}

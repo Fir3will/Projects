@@ -120,6 +120,7 @@ public class FileUtil
 
 	public static String getFileContents(File file)
 	{
+		if(!file.exists()) return null;
 		try
 		{
 			FileInputStream in = new FileInputStream(file);
@@ -212,6 +213,17 @@ public class FileUtil
 			}
 		}
 		return files;
+	}
+
+	public static String getFileExtension(String file)
+	{
+		return getFileExtension(new File(file));
+	}
+
+	public static String getFileExtension(File file)
+	{
+		String s = file.toString();
+		return s.substring(s.lastIndexOf(".") + 1, s.length());
 	}
 
 	public static DataTag loadFrom(File file)

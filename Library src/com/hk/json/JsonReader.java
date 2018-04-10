@@ -40,7 +40,7 @@ class JsonReader
 		{
 			val = beginArray(itr, input);
 		}
-		else if (Character.isDigit(c))
+		else if (Character.isDigit(c) || c == '+' || c == '-')
 		{
 			val = beginNumber(itr, input);
 		}

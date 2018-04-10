@@ -12,12 +12,40 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package com.hk.math;
 
-public class Main
+import com.hk.util.Requirements;
+
+public class FPSCounter
 {
-	public static void main(String[] args)
+	private double fps;
+	private final int maxFrames;
+	private int frames;
+	private long start = -1;
+
+	public FPSCounter(int maxFrames)
 	{
-		
+		this.maxFrames = Requirements.requireInBounds(1, maxFrames, Integer.MAX_VALUE);
+	}
+
+	public void calc()
+	{
+		frames++;
+
+		long time = System.currentTimeMillis();
+		if (frames % maxFrames == 0)
+		{
+			long elapsed = time - start;
+			start = time;
+
+			fps = 1D / (elapsed / 1000D / maxFrames);
+
+			frames = 0;
+		}
+	}
+
+	public double getFPS()
+	{
+		return fps;
 	}
 }

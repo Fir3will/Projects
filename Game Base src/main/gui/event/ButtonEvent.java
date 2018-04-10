@@ -12,12 +12,21 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package main.gui.event;
 
-public class Main
+import main.gui.widget.GuiButton;
+
+public class ButtonEvent extends ActionEvent
 {
-	public static void main(String[] args)
+	public final GuiButton button;
+	public final float clickX, clickY;
+	public final int mouseButton;
+
+	public ButtonEvent(GuiButton button, float clickX, float clickY, int mouseButton)
 	{
-		
+		this.button = button;
+		this.clickX = clickX;
+		this.clickY = clickY;
+		this.mouseButton = mouseButton;
 	}
 }

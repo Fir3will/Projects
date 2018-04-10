@@ -16,7 +16,8 @@ package main.towerdefense;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
+import java.awt.event.KeyEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.DecimalFormat;
@@ -37,16 +38,16 @@ public class TowerDefense extends Game
 {
 	public final int gridW = 30, gridH = 20;
 	private final DecimalFormat df = new DecimalFormat("#,###");
-	private int hoverX = -1, hoverY = -1;
+	private int hoverX = -1, hoverY = -1, hoverEnemy = -1;
 	private final Spot[][] grid = new Spot[gridW][gridH];
 	public final List<Point> path;
-	private final List<Enemy> enemies;
-	public int health = 100, money = 0;
+	public final List<Enemy> enemies;
+	public int health = 100, money = 2500, level = 0;
 	
 	public TowerDefense() throws Exception
 	{
 		path = new ArrayList<>();
-		File f = new File("C:\\Users\\kayan\\Desktop\\Nothing\\level.png");
+		File f = new File("level.png");
 		BufferedImage img = ImageIO.read(f);
 		Point start = null, end = null;
 		for(int x = 0; x < img.getWidth(); x++)
@@ -55,7 +56,11 @@ public class TowerDefense extends Game
 			{
 				int rgb = img.getRGB(x, y) & 0x00FFFFFF;
 				SpotType type = null;
-				if(rgb == 0xFF0000 || rgb == 0x00FF00 || rgb == 0x0000FF)
+				if(y == 0 || y == 1)
+				{
+					type = SpotType.NOTHING;
+				}
+				else if(rgb == 0xFF0000 || rgb == 0x00FF00 || rgb == 0x0000FF)
 				{
 					if(rgb == 0x0000FF)
 					{
@@ -89,14 +94,6 @@ public class TowerDefense extends Game
 		path.addAll(checkPath(start, end));
 		
 		enemies = new ArrayList<>();
-		for(int i = 0; i <= 10; i++)
-		{
-			Enemy e = new Enemy(this, start.x + i, start.y, 10);
-			e.currentSpot = i;
-			e.health = i;
-			e.speed = 0.1F;
-			enemies.add(e);
-		}
 	}
 	
 	private List<Point> checkPath(Point start, Point end)
@@ -135,7 +132,7 @@ public class TowerDefense extends Game
 		{
 			int x = point.x + spots[i][0];
 			int y = point.y + spots[i][1];
-			if(x < gridW && y >= 0 && y < gridH && grid[x][y].type.isPath())
+			if(x >= 0 && x < gridW && y >= 0 && y < gridH && grid[x][y].type.isPath())
 			{
 				Point p = new Point(x, y);
 				if(!path.contains(p))
@@ -150,36 +147,39 @@ public class TowerDefense extends Game
 	@Override
 	public void update(int ticks)
 	{
-		for(int x = 0; x < gridW; x++)
+		if(health > 0)
 		{
-			for(int y = 0; y < gridH; y++)
+			for(int x = 0; x < gridW; x++)
 			{
-				Spot s = grid[x][y];
-				if(s.data != null)
+				for(int y = 0; y < gridH; y++)
 				{
-					s.data.update();
+					Spot s = grid[x][y];
+					if(s.data != null)
+					{
+						s.data.update();
+					}
 				}
 			}
-		}
-		
-		List<Enemy> removables = new ArrayList<>();
-		for(Enemy enemy : enemies)
-		{
-			enemy.update();
 			
-			if(enemy.isDead())
+			List<Enemy> removables = new ArrayList<>();
+			for(Enemy enemy : enemies)
 			{
-				removables.add(enemy);
+				enemy.update();
+				
+				if(enemy.isDead())
+				{
+					removables.add(enemy);
+					money++;
+				}
 			}
+			
+			enemies.removeAll(removables);
 		}
-		
-		enemies.removeAll(removables);
 	}
 
 	@Override
 	public void paint(G2D g2d)
 	{
-		g2d.enable(G2D.G_FILL);
 		for(int x = 0; x < gridW; x++)
 		{
 			for(int y = 0; y < gridH; y++)
@@ -188,14 +188,25 @@ public class TowerDefense extends Game
 				s.paint(g2d, hoverX == x && hoverY == y);
 			}
 		}
-		g2d.setColor(Color.WHITE);
-		for(Enemy enemy : enemies)
+		if(hoverX != -1 && hoverY != -1)
 		{
-			enemy.paint(g2d);
+			Spot s = grid[hoverX][hoverY];
+			if(s.data != null && s.data.hasTower)
+			{
+				g2d.enable(G2D.G_FILL);
+				g2d.setColor(new Color(0x55000000, true));
+				g2d.drawCircle(hoverX * 20 + 10 - s.data.reach, hoverY * 20 + 10 - s.data.reach, s.data.reach);
+				g2d.disable(G2D.G_FILL);
+				g2d.setColor(new Color(0xBB000000, true));
+				g2d.drawCircle(hoverX * 20 + 10 - s.data.reach, hoverY * 20 + 10 - s.data.reach, s.data.reach);
+			}
 		}
-		
-		g2d.disable(G2D.G_FILL);
-		
+		g2d.setColor(Color.WHITE);
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			enemies.get(i).paint(g2d, hoverEnemy == i);
+		}
+				
 //		g2d.setColor(Color.BLUE);
 //		for(int i = 0; i < path.size() - 1; i++)
 //		{
@@ -206,30 +217,73 @@ public class TowerDefense extends Game
 		
 		g2d.enable(G2D.G_FILL);
 		g2d.setColor(Color.RED);
-		g2d.drawRectangle(5, 5, health, 10);
+		g2d.drawRectangle(40, 10, health * 1.5F, 25);
 		g2d.disable(G2D.G_FILL);
 
-		g2d.pushFont();
-		g2d.setFontSize(g2d.getFont().getSize2D() / 2F);
+		g2d.setColor(Color.WHITE);
+		g2d.drawRectangle(40, 10, 150, 25);
+
 		g2d.enable(G2D.G_CENTER);
 		g2d.setColor(Color.WHITE);
-		g2d.drawString(health + "%", 55, 10);
+		g2d.drawString(health, 115, 20);
 		g2d.disable(G2D.G_CENTER);
-		g2d.popFont();
-		g2d.drawString("$" + df.format(money), 120, 15);
 
+		String str = "Money: $" + df.format(money);
+		g2d.drawString(str, 200, 35);
+		if(hoverX != -1 && hoverY != -1)
+		{
+			Spot s = grid[hoverX][hoverY];
+			if(s.type.isPlatform() && s.data != null)
+			{
+				String extra = null;
+				Color clr = null;
+				if(!s.data.hasTower)
+				{
+					clr = money >= 20 ? Color.GREEN : Color.RED;
+					extra = " - $20 = " + df.format(money - 20);
+				}
+				else if(s.data.hasTower && s.data.damage == 1)
+				{
+					clr = money >= 40 ? Color.GREEN : Color.RED;
+					extra = " - $40 = " + df.format(money - 40);
+				}
+				
+				if(extra != null)
+				{
+					Rectangle2D bounds = g2d.getStringBounds(str);
+					g2d.setColor(clr);
+					g2d.drawString(extra, 200 + bounds.getMaxX(), 35);
+				}
+			}
+		}
 		g2d.setColor(Color.WHITE);
-		g2d.drawRectangle(5, 5, 100, 10);
+		g2d.drawString(level == 0 ? "Press [SPACE] to begin!" : "Level: " + level + (enemies.isEmpty() ? ", [SPACE] for next level." : ", Enemies Left: " + enemies.size()), 200, 20);
+		
+		if(health <= 0)
+		{
+			g2d.enable(G2D.G_FILL);
+			g2d.setColor(new Color(0xAA000000, true));
+			g2d.drawRectangle(0, 0, g2d.width, g2d.height);
+			g2d.enable(G2D.G_CENTER);
+			g2d.setColor(Color.BLACK);
+			g2d.drawRectangle(g2d.width / 2, g2d.height / 2, g2d.width / 3, g2d.height / 3);
+			g2d.disable(G2D.G_FILL);
+			g2d.setColor(Color.WHITE);
+			g2d.drawRectangle(g2d.width / 2, g2d.height / 2, g2d.width / 3, g2d.height / 3);
+			g2d.drawString("You Lost!", g2d.width / 2, g2d.height * 2 / 5);
+			g2d.drawString("Reached Level " + level + "!", g2d.width / 2, g2d.height * 3 / 5);
+			g2d.disable(G2D.G_CENTER | G2D.G_FILL);
+		}
 	}
 	
 	public void mouse(float x, float y, boolean pressed, int button)
 	{
 		mouseMoved(x, y);
-		if(!pressed && button == MouseEvent.BUTTON1)
+		if(!pressed)
 		{
 			if(hoverX != -1 && hoverY != 0)
 			{
-				
+				grid[hoverX][hoverY].clickedOn(button);
 			}
 		}
 	}
@@ -248,8 +302,35 @@ public class TowerDefense extends Game
 				}
 			}
 		}
+		
+		hoverEnemy = -1;
+		for(int i = 0; i < enemies.size(); i++)
+		{
+			Enemy e = enemies.get(i);
+			if(e.position.distance(x, y) <= 20)
+			{
+				hoverEnemy = i;
+			}
+		}
 	}
 
+	public void key(int key, char keyChar, boolean pressed)
+	{
+		if(!pressed && key == KeyEvent.VK_SPACE)
+		{
+			if(enemies.isEmpty())
+			{
+				level++;
+				
+				for(int i = 0; i < level * level; i++)
+				{
+					Enemy e = new Enemy(this, -i, 4, 40 + (int) (5 + (i / 10F)));
+					enemies.add(e);
+				}
+			}
+		}
+	}
+	
 	public static void main(String[] args) throws Exception
 	{
 		GameSettings settings = new GameSettings();

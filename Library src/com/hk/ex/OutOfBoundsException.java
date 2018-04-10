@@ -12,12 +12,29 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package com.hk.ex;
 
-public class Main
+public class OutOfBoundsException extends IllegalArgumentException
 {
-	public static void main(String[] args)
+	public OutOfBoundsException()
 	{
-		
+		super();
 	}
+
+	public OutOfBoundsException(String arg0)
+	{
+		super(arg0);
+	}
+
+	public OutOfBoundsException(Throwable arg0)
+	{
+		super(arg0);
+	}
+
+	public OutOfBoundsException(String arg0, Throwable arg1)
+	{
+		super(arg0, arg1);
+	}
+
+	private static final long serialVersionUID = -8863697427281645767L;
 }

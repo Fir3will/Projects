@@ -19,7 +19,7 @@ import java.awt.Font;
 import main.G2D;
 import main.gui.GuiScreen;
 import main.gui.GuiWidget;
-import main.gui.event.ActionEvent;
+import main.gui.event.ButtonEvent;
 
 public class GuiButton extends GuiWidget
 {
@@ -27,6 +27,7 @@ public class GuiButton extends GuiWidget
 	private String text;
 	private Color color, textColor, hoverColor;
 	private Font font;
+	private boolean enabled = true;
 
 	public GuiButton(GuiScreen screen, int buttonID, String text, float x, float y)
 	{
@@ -80,6 +81,12 @@ public class GuiButton extends GuiWidget
 		this.font = font;
 		return this;
 	}
+	
+	public GuiButton setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+		return this;
+	}
 
 	public String getText()
 	{
@@ -105,12 +112,17 @@ public class GuiButton extends GuiWidget
 	{
 		return font;
 	}
+	
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
 
 	@Override
 	public void paintWidget(G2D g2d, float mouseX, float mouseY)
 	{
 		g2d.pushColor();
-		g2d.setColor(bounds.contains(mouseX, mouseY) ? hoverColor : color);
+		g2d.setColor(enabled && bounds.contains(mouseX, mouseY) ? hoverColor : color);
 		g2d.drawRoundRectangle(bounds.x, bounds.y, bounds.width, bounds.height, bounds.width / 5F, bounds.width / 5F);
 		g2d.enable(G2D.G_CENTER);
 		if (font != null)
@@ -118,7 +130,7 @@ public class GuiButton extends GuiWidget
 			g2d.pushFont();
 			g2d.setFont(font);
 		}
-		g2d.setColor(textColor);
+		g2d.setColor(enabled ? textColor : color.darker());
 		g2d.drawString(text, bounds.getCenterX(), bounds.getCenterY());
 		if (font != null)
 		{
@@ -131,21 +143,9 @@ public class GuiButton extends GuiWidget
 	@Override
 	public void onClick(float x, float y, int button)
 	{
-		listeners.fireActionPerformed(new ButtonEvent(this, x, y, button));
-	}
-
-	public class ButtonEvent extends ActionEvent
-	{
-		public final GuiButton button;
-		public final float clickX, clickY;
-		public final int mouseButton;
-
-		public ButtonEvent(GuiButton button, float clickX, float clickY, int mouseButton)
+		if(enabled)
 		{
-			this.button = button;
-			this.clickX = clickX;
-			this.clickY = clickY;
-			this.mouseButton = mouseButton;
+			listeners.fireActionPerformed(new ButtonEvent(this, x, y, button));
 		}
 	}
 }

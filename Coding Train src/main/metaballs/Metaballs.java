@@ -15,16 +15,16 @@
 package main.metaballs;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-
-import com.hk.math.vector.Vector2F;
-import com.sun.javafx.geom.Point2D;
 
 import main.G2D;
 import main.Game;
 import main.GameSettings;
 import main.GameSettings.Quality;
 import main.Main;
+
+import com.hk.math.vector.Vector2F;
 
 public class Metaballs extends Game
 {

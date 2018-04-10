@@ -12,12 +12,16 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package com.hk.math;
 
-public class Main
+public class StorageUtils
 {
-	public static void main(String[] args)
-	{
-		
-	}
+	private StorageUtils()
+	{}
+
+	public static final int BYTE = 1;
+	public static final int KILOBYTE = 1024 * BYTE;
+	public static final int MEGABYTE = 1024 * KILOBYTE;
+	public static final int GIGABYTE = 1024 * MEGABYTE;
+	public static final int TERABYTE = 1024 * GIGABYTE;
 }

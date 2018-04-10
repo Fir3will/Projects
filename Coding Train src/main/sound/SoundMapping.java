@@ -15,6 +15,7 @@
 package main.sound;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
 
 import javax.sound.sampled.AudioFormat;
@@ -24,14 +25,13 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.TargetDataLine;
 
-import com.hk.math.PrimitiveUtil;
-import com.sun.glass.events.KeyEvent;
-
 import main.G2D;
 import main.Game;
 import main.GameSettings;
 import main.GameSettings.Quality;
 import main.Main;
+
+import com.hk.math.PrimitiveUtil;
 
 public class SoundMapping extends Game
 {

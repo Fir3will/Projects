@@ -27,10 +27,13 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.hk.math.MathUtil;
+
 import main.G2D;
 import main.gui.GuiScreen;
 import main.gui.GuiWidget;
+import main.gui.event.ActionPerformedEvent;
 
 public class GuiTextField extends GuiWidget
 {
@@ -139,9 +142,10 @@ public class GuiTextField extends GuiWidget
 			x = (float) (bounds.x + bounds.width - 2 - b.getWidth());
 			y = (float) (bounds.getCenterY() - b.getCenterY());
 		}
-		g2d.drawString(caretPosition + ", " + endCaretPos, 5, 15);
+//		g2d.drawString(caretPosition + ", " + endCaretPos, 5, 15);
 		if (endCaretPos == -1)
 		{
+			g2d.setColor(textColor);
 			g2d.drawString(text, x, y);
 		}
 		else
@@ -166,7 +170,7 @@ public class GuiTextField extends GuiWidget
 		if (isCurrentFocus() && System.currentTimeMillis() / 500 % 2 == 0)
 		{
 			b = g2d.getStringBounds(text.substring(0, caretPosition));
-			g2d.drawRectangle(bounds.x + b.getMaxX() + 2, bounds.y + b.getHeight(), 1, b.getHeight());
+			g2d.drawRectangle(x + b.getMaxX() + 2, bounds.y + b.getHeight() / 2, 1, b.getHeight());
 		}
 		g2d.popColor();
 
@@ -236,7 +240,11 @@ public class GuiTextField extends GuiWidget
 			}
 			return;
 		}
-		if (keyCode == KeyEvent.VK_LEFT)
+		if(keyCode == KeyEvent.VK_ENTER)
+		{
+			this.listeners.fireActionPerformed(new ActionPerformedEvent(this));
+		}
+		else if (keyCode == KeyEvent.VK_LEFT)
 		{
 			if (screen.getHandler().isKeyDown(KeyEvent.VK_SHIFT))
 			{
@@ -283,8 +291,11 @@ public class GuiTextField extends GuiWidget
 				int min = endCaretPos == -1 ? caretPosition - 1 : Math.min(caretPosition, endCaretPos);
 				int max = endCaretPos == -1 ? caretPosition : Math.max(caretPosition, endCaretPos);
 				text.delete(min, max);
+				if(caretPosition > endCaretPos)
+				{
+					caretPosition -= max - min;
+				}
 				endCaretPos = -1;
-				caretPosition--;
 			}
 		}
 		//		else if (Character.isAlphabetic(keyChar))

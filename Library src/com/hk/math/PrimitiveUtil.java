@@ -53,7 +53,7 @@ public class PrimitiveUtil
 
 	public static byte[] shortToBytes(short n, byte[] bs, int off)
 	{
-		for (int i = 0; i < bs.length; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			bs[i + off] = (byte) (n >> 8 * i & 0xFF);
 		}
@@ -93,7 +93,7 @@ public class PrimitiveUtil
 
 	public static byte[] intToBytes(int n, byte[] bs, int off)
 	{
-		for (int i = 0; i < bs.length; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			bs[i + off] = (byte) (n >> 8 * i & 0xFF);
 		}
@@ -103,7 +103,7 @@ public class PrimitiveUtil
 
 	public static short[] intToShorts(int n, short[] bs, int off)
 	{
-		for (int i = 0; i < bs.length; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			bs[i + off] = (short) (n >> 16 * i & 0xFFFF);
 		}

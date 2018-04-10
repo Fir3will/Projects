@@ -46,6 +46,16 @@ public final class Vector2F implements Serializable, Cloneable
 	{
 		set(copy);
 	}
+	
+	public float getIndx(int indx)
+	{
+		switch(indx)
+		{
+		case 0: return x;
+		case 1: return y;
+		default: throw new IllegalArgumentException("Out of bounds [0, 1]: " + indx);
+		}
+	}
 
 	public float getX()
 	{
@@ -55,6 +65,17 @@ public final class Vector2F implements Serializable, Cloneable
 	public float getY()
 	{
 		return y;
+	}
+	
+	public Vector2F setIndx(int indx, float val)
+	{
+		switch(indx)
+		{
+		case 0: x = val; return this;
+		case 1: y = val; return this;
+		default:
+			throw new IllegalArgumentException("Out of bounds [0, 1]: " + indx);
+		}
 	}
 
 	public Vector2F setX(float x)
@@ -338,7 +359,7 @@ public final class Vector2F implements Serializable, Cloneable
 
 	public float smallestAngleBetween(Vector2F vec)
 	{
-		return FloatMath.acos(dot(vec));
+		return FloatMath.acos(dot(vec) / (length() * vec.length()));
 	}
 
 	public Vector2F interpolate(Vector2F finalVec, float changeAmnt)
@@ -382,8 +403,8 @@ public final class Vector2F implements Serializable, Cloneable
 	public Vector2F rotateAround(float angle, boolean cw)
 	{
 		angle = cw ? angle : -angle;
-		final float newX = FloatMath.cos(angle) * x - FloatMath.sin(angle) * y;
-		final float newY = FloatMath.sin(angle) * x + FloatMath.cos(angle) * y;
+		float newX = FloatMath.cos(angle) * x - FloatMath.sin(angle) * y;
+		float newY = FloatMath.sin(angle) * x + FloatMath.cos(angle) * y;
 		x = newX;
 		y = newY;
 		return this;

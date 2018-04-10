@@ -52,6 +52,16 @@ public class Rand
 		return rand.nextFloat() * multiplier;
 	}
 
+	public static float nextFloatPrecision(int precision)
+	{
+		if (precision <= 0)
+		{
+			throw new IllegalArgumentException("precision must be positive");
+		}
+		float e = FloatMath.pow(10F, precision);
+		return FloatMath.floor(nextFloat() * e) % e / e;
+	}
+
 	public static double nextDouble()
 	{
 		return rand.nextDouble();
@@ -60,6 +70,16 @@ public class Rand
 	public static double nextDouble(double multiplier)
 	{
 		return rand.nextDouble() * multiplier;
+	}
+
+	public static double nextDoublePrecision(int precision)
+	{
+		if (precision < 0)
+		{
+			throw new IllegalArgumentException("precision must be positive");
+		}
+		double e = Math.pow(10D, precision);
+		return Math.floor(nextDouble() * e) % e / e;
 	}
 
 	public static synchronized double nextGaussian()

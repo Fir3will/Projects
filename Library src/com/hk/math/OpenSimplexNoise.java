@@ -40,14 +40,12 @@ public class OpenSimplexNoise
 	private static final double NORM_CONSTANT_2D = 47;
 	private static final double NORM_CONSTANT_3D = 103;
 
-	private static final long DEFAULT_SEED = 0;
-
 	private final short[] perm;
 	private final short[] permGradIndex3D;
 
 	public OpenSimplexNoise()
 	{
-		this(DEFAULT_SEED);
+		this(Rand.nextLong());
 	}
 
 	public OpenSimplexNoise(short[] perm)

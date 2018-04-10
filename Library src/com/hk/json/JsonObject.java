@@ -21,7 +21,7 @@ import java.util.Objects;
 
 public class JsonObject extends JsonValue
 {
-	final Map<String, JsonValue> values;
+	private final Map<String, JsonValue> values;
 
 	public JsonObject()
 	{
@@ -36,6 +36,7 @@ public class JsonObject extends JsonValue
 
 	public JsonObject set(String name, JsonValue value)
 	{
+		if (!isMutable()) throw isntMutable();
 		if (value == null)
 		{
 			value = JsonNull.NULL;
@@ -44,7 +45,6 @@ public class JsonObject extends JsonValue
 		{
 			throw new IllegalArgumentException("Can't add this to this");
 		}
-		if (!isMutable()) throw isntMutable();
 		values.put(name, value);
 		return this;
 	}

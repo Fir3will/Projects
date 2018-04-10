@@ -14,21 +14,59 @@
  **************************************************************************/
 package main.towerdefense;
 
+import java.util.List;
+
+import com.hk.math.FloatMath;
+import com.hk.math.Rand;
+import com.hk.math.vector.Vector2F;
+
 public class TowerData
 {
 	public final Spot spot;
+	public Enemy target;
 	public boolean hasTower = false;
+	public int damage = 1;
+	public float reach = 4 * 20, rotation;
+	public int waitTime;
 	
 	public TowerData(Spot spot)
 	{
 		this.spot = spot;
+		waitTime = Rand.nextInt(100);
 	}
 	
 	public void update()
 	{
+		if(waitTime == 0)
+		{
+			waitTime = damage == 1 ? 100 : 20;
+		}
+		waitTime--;
 		if(hasTower)
 		{
+			target = null;
+			List<Enemy> enemies = spot.game.enemies;
+			Vector2F myPos = new Vector2F(spot.xCoord * 20 + 10, spot.yCoord * 20 + 10);
+			int closest = -1;
+			int cs = 0;
+			for(int i = 0; i < enemies.size(); i++)
+			{
+				Enemy enemy = enemies.get(i);
+				Vector2F e = enemy.position;
+				float d = myPos.distance(e);
+				if(d <= reach && enemy.currentSpot > cs)
+				{
+					cs = enemy.currentSpot;
+					closest = i;
+				}
+			}
 			
+			if(closest != -1)
+			{
+				target = enemies.get(closest);
+				Vector2F e = target.position;
+				rotation = -e.subtract(myPos).getAngle() + FloatMath.PI / 2F;
+			}
 		}
 	}
 }

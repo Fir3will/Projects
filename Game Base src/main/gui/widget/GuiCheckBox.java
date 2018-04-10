@@ -12,12 +12,22 @@
  * is strictly forbidden unless prior written permission is obtained
  * from "Fir3will".
  **************************************************************************/
-package com.hk;
+package main.gui.widget;
 
-public class Main
+import main.G2D;
+import main.gui.GuiScreen;
+import main.gui.GuiWidget;
+
+public class GuiCheckBox extends GuiWidget
 {
-	public static void main(String[] args)
+	public GuiCheckBox(GuiScreen screen)
 	{
-		
+		super(screen);
+	}
+
+	@Override
+	public void paintWidget(G2D g2d, float mouseX, float mouseY)
+	{
+
 	}
 }
