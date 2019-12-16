@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -109,6 +109,12 @@ public class Rectangle extends Shape
 	{
 		return y + height;
 	}
+	
+	public void center()
+	{
+		x -= width / 2;
+		y -= height / 2;
+	}
 
 	public void grow(float x, float y)
 	{
@@ -165,4 +171,5 @@ public class Rectangle extends Shape
 	}
 
 	private static final long serialVersionUID = 3999762594357009498L;
+
 }

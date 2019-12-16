@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -51,9 +51,9 @@ public final class Vector2F implements Serializable, Cloneable
 	{
 		switch(indx)
 		{
-		case 0: return x;
-		case 1: return y;
-		default: throw new IllegalArgumentException("Out of bounds [0, 1]: " + indx);
+			case 0: return x;
+			case 1: return y;
+			default: throw new IllegalArgumentException("Out of bounds [0, 1]: " + indx);
 		}
 	}
 

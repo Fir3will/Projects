@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -126,15 +126,13 @@ public class StrReader implements CharSequence, Serializable, Cloneable
 		return i >= 0 && i < str.length();
 	}
 	
-	public StrReader skipWhitespace()
+	public boolean skipWhitespace()
 	{
-		while(hasNext())
+		while(hasNext() && Character.isWhitespace(peek()))
 		{
-			if(Character.isWhitespace(next()))
-				continue;
-			break;
+			next();
 		}
-		return this;
+		return false;
 	}
 	
 	public int getCurrentLine()

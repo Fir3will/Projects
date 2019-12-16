@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -21,7 +21,7 @@ public class StorageUtils
 
 	public static final int BYTE = 1;
 	public static final int KILOBYTE = 1024 * BYTE;
-	public static final int MEGABYTE = 1024 * KILOBYTE;
-	public static final int GIGABYTE = 1024 * MEGABYTE;
-	public static final int TERABYTE = 1024 * GIGABYTE;
+	public static final int MEGABYTE = 1000 * KILOBYTE;
+	public static final int GIGABYTE = 1000 * MEGABYTE;
+	public static final int TERABYTE = 1000 * GIGABYTE;
 }

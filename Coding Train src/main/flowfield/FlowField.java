@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -19,28 +19,30 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.OpenSimplexNoise;
 import com.hk.math.Rand;
 import com.hk.math.vector.Vector2F;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
-public class FlowField extends Game
+public class FlowField extends GuiScreen
 {
-	private final int scale = 40, w, h;
+	private final int scale = 20, w, h;
 	private final OpenSimplexNoise osn = new OpenSimplexNoise(Rand.nextLong());
 	private final Vector2F[][] vecs;
 	private final List<Particle> particles;
+	private double time;
 			
-	public FlowField()
+	public FlowField(Game game)
 	{
+		super(game);
 		particles = new ArrayList<>();
-		w = Main.WIDTH / scale;
-		h = Main.HEIGHT / scale;
+		w = game.width / scale;
+		h = game.height / scale;
 		
 		vecs = new Vector2F[w][h];
 		
@@ -54,25 +56,24 @@ public class FlowField extends Game
 		
 		for(int i = 0; i < 1000; i++)
 		{
-			Particle p = new Particle();
-			p.pos.x = Rand.nextFloat(w);
-			p.pos.y = Rand.nextFloat(h);
-			particles.add(p);
+			particles.add(new Particle(Rand.nextFloat(w), Rand.nextFloat(h)));
 		}
+		time = 0;
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
-		double z = ticks / 50F;
-
+		time += delta * 0.25F;
 		for(int x = 0; x < w; x++)
 		{
 			for(int y = 0; y < h; y++)
 			{
-				double angle = osn.eval(x / 10F, y / 10F, z) * Math.PI;
+				double angle = osn.eval(x / 10F, y / 10F, time) * Math.PI * 2;
 				
-				vecs[x][y].set((float) (Math.cos(angle) * (scale / 2D)), (float) (Math.sin(angle) * (scale / 2D)));
+				vecs[x][y].set(scale / 2F, 0);
+				vecs[x][y].rotateAround((float) angle, false);
+//				vecs[x][y].set((float) (Math.cos(angle) * (scale / 2D)), (float) (Math.sin(angle) * (scale / 2D)));
 			}
 		}
 		
@@ -80,29 +81,13 @@ public class FlowField extends Game
 		{
 			p.update();
 
-			if(p.pos.x < 0)
+			if(p.pos.x < 0 || p.pos.x >= w || p.pos.y < 0 || p.pos.y >= h)
 			{
-				p.pos.x = w;
+				p.pos.set(Rand.nextFloat(w), Rand.nextFloat(h));
 			}
-			if(p.pos.x > w)
+			else
 			{
-				p.pos.x = 0;
-			}
-			if(p.pos.y < 0)
-			{
-				p.pos.y = h;
-			}
-			if(p.pos.y > h)
-			{
-				p.pos.y = 0;
-			}
-
-			int x = (int) p.pos.x;
-			int y = (int) p.pos.y;
-			
-			if(x >= 0 && x < w && y >= 0 && y < h)
-			{
-				p.applyForce(vecs[x][y]);
+				p.applyForce(vecs[(int) p.pos.x][(int) p.pos.y]);
 			}
 		}
 	}
@@ -110,7 +95,7 @@ public class FlowField extends Game
 	@Override
 	public void paint(G2D g2d)
 	{
-		g2d.setColor(Color.WHITE);
+		g2d.setColor(Color.WHITE, 0.5F);
 		for(int x = 0; x < w; x++)
 		{
 			for(int y = 0; y < h; y++)
@@ -122,6 +107,7 @@ public class FlowField extends Game
 			}
 		}
 		
+		g2d.setColor(Color.WHITE, 0.2F);
 		g2d.enable(G2D.G_CENTER | G2D.G_FILL);
 		for(Particle p : particles)
 		{
@@ -130,15 +116,15 @@ public class FlowField extends Game
 		g2d.disable(G2D.G_CENTER | G2D.G_FILL);
 	}
 	
-	public void mouse(float x, float y, boolean pressed, int button)
+	public void mouse(float x, float y, boolean pressed)
 	{
+		int button = game.handler.getButton();
 		if(button == MouseEvent.BUTTON1)
 		{
 			System.out.println(pressed);
 			if(pressed)
 			{
-				Particle p = new Particle();
-				p.pos.set(x, y);
+				Particle p = new Particle(x, y);
 				p.pos.divideLocal(scale);
 				particles.add(p);
 			}
@@ -147,29 +133,26 @@ public class FlowField extends Game
 		{
 			for(int i = 0; i < 1000; i++)
 			{
-				Particle p = new Particle();
-				p.pos.x = Rand.nextFloat(w);
-				p.pos.y = Rand.nextFloat(h);
-				particles.add(p);
+				particles.add(new Particle(Rand.nextFloat(w), Rand.nextFloat(h)));
 			}
 		}
 	}
 
 	public static void main(String[] args)
 	{
-		FlowField game = new FlowField();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Noise";
 		settings.version = "0.0.1";
 		settings.quality = Quality.POOR;
-		settings.width = 1024;
-		settings.height = 768;
+		settings.width = 1280;
+		settings.height = 720;
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 //		settings.maxFPS = 60;
 		settings.maxFPS = 100;
 		
-		Main.initialize(game, settings);
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new FlowField(frame.game));
+		frame.launch();
 	}
 }

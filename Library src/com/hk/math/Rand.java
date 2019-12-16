@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -52,6 +52,11 @@ public class Rand
 		return rand.nextFloat() * multiplier;
 	}
 
+	public static float nextFloat(float min, float max)
+	{
+		return nextFloat(max - min) + min;
+	}
+
 	public static float nextFloatPrecision(int precision)
 	{
 		if (precision <= 0)
@@ -70,6 +75,11 @@ public class Rand
 	public static double nextDouble(double multiplier)
 	{
 		return rand.nextDouble() * multiplier;
+	}
+
+	public static double nextDouble(double min, double max)
+	{
+		return nextDouble(max - min) + min;
 	}
 
 	public static double nextDoublePrecision(int precision)

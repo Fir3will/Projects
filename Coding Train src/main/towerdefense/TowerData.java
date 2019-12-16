@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -35,7 +35,7 @@ public class TowerData
 		waitTime = Rand.nextInt(100);
 	}
 	
-	public void update()
+	public void update(double delta)
 	{
 		if(waitTime == 0)
 		{
@@ -46,7 +46,7 @@ public class TowerData
 		{
 			target = null;
 			List<Enemy> enemies = spot.game.enemies;
-			Vector2F myPos = new Vector2F(spot.xCoord * 20 + 10, spot.yCoord * 20 + 10);
+			Vector2F myPos = new Vector2F(spot.xCoord * 40 + 20, spot.yCoord * 40 + 20);
 			int closest = -1;
 			int cs = 0;
 			for(int i = 0; i < enemies.size(); i++)

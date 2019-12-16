@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -138,7 +138,7 @@ public class PrimitiveUtil
 
 	public static byte[] longToBytes(long n, byte[] arr, int off)
 	{
-		for (int i = 0; i < arr.length; i++)
+		for (int i = 0; i < 8; i++)
 		{
 			arr[i + off] = (byte) (n >> 8 * i & 0xFF);
 		}
@@ -148,7 +148,7 @@ public class PrimitiveUtil
 
 	public static short[] longToShorts(long n, short[] arr, int off)
 	{
-		for (int i = 0; i < arr.length; i++)
+		for (int i = 0; i < 4; i++)
 		{
 			arr[i + off] = (short) (n >> 16 * i & 0xFFFF);
 		}
@@ -158,7 +158,7 @@ public class PrimitiveUtil
 
 	public static int[] longToInts(long n, int[] arr, int off)
 	{
-		for (int i = 0; i < arr.length; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			arr[i + off] = (int) (n >> 32 * i & 0xFFFFFFFF);
 		}

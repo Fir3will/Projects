@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -34,43 +34,37 @@ public class JsonArray extends JsonValue implements Iterable<JsonValue>
 		{
 			value = JsonNull.NULL;
 		}
-		if (!isMutable()) throw isntMutable();
 		values.add(value);
 		return this;
 	}
 
 	public JsonArray add(String value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.add(new JsonString(value));
+		add(new JsonString(value));
 		return this;
 	}
 
 	public JsonArray add(double value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.add(new JsonDouble(value));
+		add(new JsonDouble(value));
 		return this;
 	}
 
 	public JsonArray add(long value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.add(new JsonLong(value));
+		add(new JsonLong(value));
 		return this;
 	}
 
 	public JsonArray add(boolean value)
 	{
-		if (!isMutable()) throw isntMutable();
 		values.add(new JsonBoolean(value));
 		return this;
 	}
 
 	public JsonArray add(Object value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.add(Json.objectToJson(value));
+		add(Json.objectToJson(value));
 		return this;
 	}
 
@@ -86,7 +80,6 @@ public class JsonArray extends JsonValue implements Iterable<JsonValue>
 
 	public JsonValue remove(int i)
 	{
-		if (!isMutable()) throw isntMutable();
 		return values.remove(i);
 	}
 

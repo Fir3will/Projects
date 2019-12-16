@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -29,7 +29,7 @@ public class Bits implements Cloneable, Serializable
 	public Bits(int val, int size)
 	{
 		this.val = val;
-		this.size = MathUtil.clamp(size, 32, 1);
+		this.size = MathUtil.between(1, size, 32);
 	}
 
 	public Bits setBit(int index, boolean b)
@@ -39,14 +39,8 @@ public class Bits implements Cloneable, Serializable
 			throw new OutOfBoundsException(index, size);
 		}
 		int i = 1 << index;
-		if (b)
-		{
-			val |= i;
-		}
-		else
-		{
-			val &= ~i;
-		}
+		if (b) val |= i;
+		else val &= ~i;
 
 		return this;
 	}
@@ -63,6 +57,13 @@ public class Bits implements Cloneable, Serializable
 	public Bits toggleBit(int index)
 	{
 		return setBit(index, !getBit(index));
+	}
+	
+	public Bits setAll(boolean b)
+	{
+		for(int i = 0; i < size; i++)
+			setBit(i, b);
+		return this;
 	}
 
 	@Override

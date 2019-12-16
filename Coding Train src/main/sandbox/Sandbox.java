@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -18,41 +18,44 @@ import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.Rand;
 import com.hk.math.vector.Vector2F;
 
-public class Sandbox extends Game
+public class Sandbox extends GuiScreen
 {
-	private final int size = 500;
+	private final int size = 250;
 	private final Ball[] balls;
 	private int selectedBall = -1;
-	private boolean paused = false;
+	private boolean paused = false, gravity = true;
 	
-	public Sandbox()
+	public Sandbox(Game game)
 	{
+		super(game);
 		balls = new Ball[size];
 		for(int i = 0; i < size; i++)
 		{
-			balls[i] = new Ball(2);
-			balls[i].pos.set(Rand.nextFloat(Main.WIDTH), Rand.nextFloat(Main.HEIGHT));
+			float f = i / (size - 1F);
+			balls[i] = new Ball(game, 8, f);
+			balls[i].pos.set(Rand.nextFloat(game.width), Rand.nextFloat(game.height));
 			balls[i].vel.set(Vector2F.randUnitVector());
 		}
+//		balls[0].vel.set(size * 10, 0).rotateAround(Rand.nextFloat(FloatMath.PI * 2), true);
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 		if(!paused)
 		{
 			for(int i = 0; i < size; i++)
 			{
-				balls[i].update(!getHandler().isKeyDown(KeyEvent.VK_SPACE));
+				balls[i].update(delta, gravity);
 			}
 				
 			for(int i = 0; i < size; i++)
@@ -65,12 +68,12 @@ public class Sandbox extends Game
 					}
 				}
 			}
-			
-			if(selectedBall != -1)
-			{
-				Ball b = balls[selectedBall];
-				b.vel.subtractLocal(b.pos.subtract(getHandler().mouseX(), getHandler().mouseY()).divideLocal(200));
-			}
+		}
+		
+		if(selectedBall != -1)
+		{
+			Ball b = balls[selectedBall];
+			b.vel.subtractLocal(b.pos.subtract(game.handler.get()).divideLocal(200));
 		}
 	}
 
@@ -78,28 +81,32 @@ public class Sandbox extends Game
 	public void paint(G2D g2d)
 	{
 		g2d.enable(G2D.G_CENTER);
+		g2d.enable(G2D.G_FILL);
 		for(int i = 0; i < size; i++)
 		{
-			g2d.enable(G2D.G_FILL);
-			g2d.setColor(balls[i].clr);
+			g2d.setColor(balls[i].clr.r, balls[i].clr.g, balls[i].clr.b);
 			g2d.drawCircle(balls[i].pos.x, balls[i].pos.y, balls[i].radius);
-			g2d.disable(G2D.G_FILL);
-			g2d.setColor(Color.BLACK);
+		}
+		g2d.disable(G2D.G_FILL);
+		g2d.setColor(Color.BLACK);
+		for(int i = 0; i < size; i++)
+		{
 			g2d.drawCircle(balls[i].pos.x, balls[i].pos.y, balls[i].radius);
 		}
 		g2d.disable(G2D.G_CENTER);
 		
-		g2d.setColor(Color.BLACK);
 		if(selectedBall != -1)
 		{
 			Ball b = balls[selectedBall];
-			g2d.drawLine(b.pos.x, b.pos.y, getHandler().mouseX(), getHandler().mouseY());
+			g2d.drawLine(b.pos.x, b.pos.y, game.handler.getX(), game.handler.getY());
 		}
 	}
 	
 	@Override
-	public void mouse(float x, float y, boolean pressed, int button)
+	public void mouse(float x, float y, boolean pressed)
 	{
+		int button = handler.getButton();
+		
 		if(button == MouseEvent.BUTTON1)
 		{
 			if(pressed)
@@ -151,6 +158,10 @@ public class Sandbox extends Game
 			{
 				paused = !paused;
 			}
+			else if(key == KeyEvent.VK_SPACE)
+			{
+				gravity = !gravity;
+			}
 			else if(key == KeyEvent.VK_Q)
 			{
 				for(int i = 0; i < size; i++)
@@ -170,20 +181,18 @@ public class Sandbox extends Game
 
 	public static void main(String[] args)
 	{
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Sandbox";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
-		settings.width = 1600;
-		settings.height = 900;
+		settings.width = 1280;
+		settings.height = 720;
 		settings.showFPS = true;
 		settings.background = Color.WHITE;
-		settings.maxFPS = 60;
+		settings.maxFPS = -1;
 
-		System.setProperty("Main.WIDTH", String.valueOf(settings.width / 4));
-		System.setProperty("Main.HEIGHT", String.valueOf(settings.height / 4));
-
-		Sandbox game = new Sandbox();
-		Main.initialize(game, settings);
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Sandbox(frame.game));
+		frame.launch();
 	}
 }

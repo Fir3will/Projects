@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,33 +16,8 @@ package com.hk.json;
 
 public abstract class JsonValue
 {
-	private boolean mutable;
-
-	protected JsonValue()
-	{
-		this(true);
-	}
-
-	protected JsonValue(boolean mutable)
-	{
-		this.mutable = true;
-	}
-
-	protected final NotMutableException isntMutable()
-	{
-		return new NotMutableException();
-	}
-
-	public final boolean isMutable()
-	{
-		return mutable;
-	}
-
-	public final JsonValue setMutable()
-	{
-		mutable = true;
-		return this;
-	}
+	JsonValue()
+	{}
 
 	public final boolean isArray()
 	{
@@ -62,6 +37,11 @@ public abstract class JsonValue
 	public final JsonPrimitive getPrimitive()
 	{
 		return isPrimitive() ? (JsonPrimitive) this : null;
+	}
+
+	public final JsonPrimitive p()
+	{
+		return getPrimitive();
 	}
 
 	public final boolean isObject()

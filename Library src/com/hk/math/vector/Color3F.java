@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -27,6 +27,26 @@ public final class Color3F implements Serializable, Cloneable
 	public Color3F()
 	{
 		a = 1F;
+	}
+	
+	public Color3F(int rgb)
+	{
+		set(rgb);
+	}
+	
+	public Color3F(int argb, boolean alpha)
+	{
+		set(argb, alpha);
+	}
+
+	public Color3F(int r, int g, int b)
+	{
+		set(r, g, b);
+	}
+
+	public Color3F(int r, int g, int b, int a)
+	{
+		set(r, g, b, a);
 	}
 
 	public Color3F(float r, float g, float b)
@@ -117,6 +137,20 @@ public final class Color3F implements Serializable, Cloneable
 		this.a = a;
 		return this;
 	}
+	
+	public Color3F set(int rgb)
+	{
+		return set(rgb, false);
+	}
+	
+	public Color3F set(int argb, boolean alpha)
+	{
+		r = ((argb >> 16) & 0xFF) / 255F;
+		g = ((argb >> 8) & 0xFF) / 255F;
+		b = (argb & 0xFF) / 255F;
+		a = alpha ? ((argb >> 24) & 0xFF) / 255F : 1F;
+		return this;
+	}
 
 	public Color3F set(float r, float g, float b)
 	{
@@ -198,7 +232,7 @@ public final class Color3F implements Serializable, Cloneable
 	{
 		r -= value;
 		g -= value;
-		g -= value;
+		b -= value;
 		a -= value;
 		return this;
 	}
@@ -386,10 +420,15 @@ public final class Color3F implements Serializable, Cloneable
 
 	public Color3F fromArray(float[] arr)
 	{
-		r = arr[0];
-		g = arr[1];
-		b = arr[2];
-		a = arr[3];
+		return fromArray(arr, 0);
+	}
+
+	public Color3F fromArray(float[] arr, int off)
+	{
+		r = arr[off + 0];
+		g = arr[off + 1];
+		b = arr[off + 2];
+		a = arr[off + 3];
 		return this;
 	}
 
@@ -448,10 +487,10 @@ public final class Color3F implements Serializable, Cloneable
 
 	public Color3F clamp()
 	{
-		r = MathUtil.clamp(r, 1F, 0F);
-		g = MathUtil.clamp(g, 1F, 0F);
-		b = MathUtil.clamp(b, 1F, 0F);
-		a = MathUtil.clamp(a, 1F, 0F);
+		r = MathUtil.between(0F, r, 1F);
+		g = MathUtil.between(0F, g, 1F);
+		b = MathUtil.between(0F, b, 1F);
+		a = MathUtil.between(0F, a, 1F);
 		return this;
 	}
 
@@ -489,13 +528,13 @@ public final class Color3F implements Serializable, Cloneable
 		return new Color3F(Rand.nextFloat(), Rand.nextFloat(), Rand.nextFloat());
 	}
 
-	public static final Color3F WHITE = new Color3F(1, 1, 1);
-	public static final Color3F BLACK = new Color3F(0, 0, 0);
-	public static final Color3F RED = new Color3F(1, 0, 0);
-	public static final Color3F GREEN = new Color3F(0, 1, 0);
-	public static final Color3F BLUE = new Color3F(0, 0, 1);
-	public static final Color3F YELLOW = new Color3F(1, 1, 0);
-	public static final Color3F CYAN = new Color3F(0, 1, 1);
-	public static final Color3F PURPLE = new Color3F(1, 0, 1);
+	public static final Color3F WHITE = new Color3F(0xFFFFFF);
+	public static final Color3F BLACK = new Color3F(0x000000);
+	public static final Color3F RED = new Color3F(0xFF0000);
+	public static final Color3F GREEN = new Color3F(0x00FF00);
+	public static final Color3F BLUE = new Color3F(0x0000FF);
+	public static final Color3F YELLOW = new Color3F(0xFFFF00);
+	public static final Color3F CYAN = new Color3F(0x00FFFF);
+	public static final Color3F PURPLE = new Color3F(0xFF00FF);
 	private static final long serialVersionUID = -3172866587807242195L;
 }

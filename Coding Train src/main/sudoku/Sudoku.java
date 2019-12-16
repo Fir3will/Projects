@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,21 +16,22 @@ package main.sudoku;
 
 import java.awt.Color;
 
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.Rand;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.Main;
-import main.GameSettings.Quality;
-
-public class Sudoku extends Game
+public class Sudoku extends GuiScreen
 {
 	public int[][] tiles = new int[9][9];
 	public boolean[][] stuck = new boolean[9][9];
 	
-	public Sudoku()
+	public Sudoku(Game game)
 	{
+		super(game);
 		for(int x = 0; x < 9; x++)
 		{
 			for(int y = 0; y < 9; y++)
@@ -85,7 +86,7 @@ public class Sudoku extends Game
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 
 	}
@@ -165,8 +166,8 @@ public class Sudoku extends Game
 	{
 		if(!pressed)
 		{
-			int x1 = (int) (x / (Main.WIDTH / 9));
-			int y1 = (int) (y / (Main.HEIGHT / 9));
+			int x1 = (int) (x / (game.width / 9));
+			int y1 = (int) (y / (game.height / 9));
 			if(!stuck[x1][y1])
 			{
 				tiles[x1][y1] = tiles[x1][y1] + 1;
@@ -181,8 +182,8 @@ public class Sudoku extends Game
 	
 	public void key(int keyCode, char keyChar, boolean pressed)
 	{
-		int x1 = (int) (getHandler().mouseX() / (Main.WIDTH / 9));
-		int y1 = (int) (getHandler().mouseY() / (Main.HEIGHT / 9));
+		int x1 = (int) (handler.getX() / (game.width / 9));
+		int y1 = (int) (handler.getY() / (game.height / 9));
 		if(Character.isDigit(keyChar))
 		{
 			if(!stuck[x1][y1])
@@ -194,12 +195,14 @@ public class Sudoku extends Game
 
 	public static void main(String[] args)
 	{
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Sudoku";
 		settings.width = 900;
 		settings.height = 900;
 		settings.quality = Quality.POOR;
-		
-		Main.initialize(new Sudoku(), settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Sudoku(frame.game));
+		frame.launch();
 	}
 }

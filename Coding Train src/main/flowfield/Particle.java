@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -14,15 +14,16 @@
  **************************************************************************/
 package main.flowfield;
 
+import com.hk.math.Rand;
 import com.hk.math.vector.Vector2F;
 
 public class Particle
 {
 	public final Vector2F pos, vel;
 	
-	public Particle()
+	public Particle(float x, float y)
 	{
-		pos = new Vector2F();
+		pos = new Vector2F(x, y);
 		vel = Vector2F.randUnitVector().multLocal(0.1F);
 	}
 	
@@ -33,7 +34,7 @@ public class Particle
 	
 	public void applyForce(Vector2F force)
 	{
-		vel.addLocal(force);
+		vel.addLocal(force.mult(Rand.nextFloat()));
 		vel.normalizeLocal().multLocal(0.1F);
 	}
 }

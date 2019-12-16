@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,13 +16,8 @@ package com.hk.json;
 
 public abstract class JsonPrimitive extends JsonValue
 {
-	protected JsonPrimitive()
+	JsonPrimitive()
 	{}
-
-	protected JsonPrimitive(boolean mutable)
-	{
-		super(mutable);
-	}
 
 	public final boolean isLong()
 	{
@@ -32,6 +27,16 @@ public abstract class JsonPrimitive extends JsonValue
 	public final JsonLong getLong()
 	{
 		return isLong() ? (JsonLong) this : null;
+	}
+	
+	public final long longP() throws NullPointerException
+	{
+		return getLong().get();
+	}
+	
+	public final int intP() throws NullPointerException
+	{
+		return (int) longP();
 	}
 
 	public final boolean isDouble()
@@ -43,6 +48,16 @@ public abstract class JsonPrimitive extends JsonValue
 	{
 		return isDouble() ? (JsonDouble) this : null;
 	}
+	
+	public final double doubleP() throws NullPointerException
+	{
+		return getDouble().get();
+	}
+	
+	public final float floatP() throws NullPointerException
+	{
+		return (float) doubleP();
+	}
 
 	public final boolean isString()
 	{
@@ -53,6 +68,11 @@ public abstract class JsonPrimitive extends JsonValue
 	{
 		return isString() ? (JsonString) this : null;
 	}
+	
+	public final String stringP() throws NullPointerException
+	{
+		return getString().get();
+	}
 
 	public final boolean isBoolean()
 	{
@@ -62,5 +82,10 @@ public abstract class JsonPrimitive extends JsonValue
 	public final JsonBoolean getBoolean()
 	{
 		return isBoolean() ? (JsonBoolean) this : null;
+	}
+	
+	public final boolean boolP()
+	{
+		return getBoolean().get();
 	}
 }

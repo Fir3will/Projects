@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -15,154 +15,376 @@
 package main.smartrockets;
 
 import java.awt.Color;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
-import com.hk.math.Rand;
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.vector.Vector2F;
+import com.hk.str.StringUtil;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
-public class SmartRockets extends Game
+public class SmartRockets extends GuiScreen
 {
-	public static final int MAX = 1000;
-	private final Vector2F target;
-	private final Rocket[] rockets;
-	private final Rectangle obs;
-	private int frame, gen;
+	private final int size = 500, frames = 500;
+	private final Car[] cars = new Car[size];
+	private final int scl = 10;
+	private final boolean[] grid;
+	private int frame = 0, gen, btn;
+	private float avgFitness = 0, tx, ty;
+	private boolean paused, speed;
 			
-	public SmartRockets()
+	public SmartRockets(Game game)
 	{
-		target = new Vector2F(Main.WIDTH / 2F, 40);
-		rockets = new Rocket[30];
-		for(int i = 0; i < rockets.length; i++)
+		super(game);
+		grid = new boolean[(game.width / scl) * (game.height / scl)];
+		reset();
+		btn = -1;
+	}
+	
+	private void reset()
+	{
+		speed = false;
+		paused = false;
+		gen = 0;
+		frame = 0;
+		Arrays.fill(grid, false);
+		for(int i = 0; i < size; i++)
 		{
-			rockets[i] = new Rocket(null);
+			cars[i] = new Car(null);
 		}
-		
-		obs = new Rectangle(Main.WIDTH / 2, Main.HEIGHT / 2, Main.WIDTH * 2 / 4, 100);
-//		obs = new Rectangle(Main.WIDTH / 2, Main.HEIGHT / 2, 10, 10);
-		obs.x -= obs.width / 2;
-		obs.y -= obs.height / 2;
+	}
+	
+	private void tick()
+	{
+		for(int i = 0; i < size; i++)
+		{
+			cars[i].updateCar(frame);
+		}
+		frame++;
+		if(frame == frames)
+		{
+			frame = 0;
+			nextGeneration();
+		}
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
-		for(Rocket rocket : rockets)
+		if(!paused)
 		{
-			rocket.applyForce(rocket.dna.velocities[frame]);
-			rocket.update();
-			
-			if(obs.contains(rocket.pos.x, rocket.pos.y))
+			if(speed)
 			{
-				rocket.dead = true;
+//				int n = Math.max(1, (int) (Math.random() * (frames - frame - 2)));
+				int n = Math.max(1, (int) (Math.random() * frames));
+				for(; n > 0; n--)
+				{
+					tick();
+				}
 			}
-
-			if(rocket.pos.x < 0 || rocket.pos.x > Main.WIDTH)
+			else
 			{
-				rocket.vel.x /= -0.75F;
+				tick();
 			}
-			if(rocket.pos.y < 0 || rocket.pos.y > Main.HEIGHT)
-			{
-				rocket.vel.y /= -0.75F;
-			}
-			
-			if(rocket.pos.distance(target) < 30)
-			{
-				rocket.complete = true;
-			}
-		}
-		frame++;
-		if(frame >= MAX)
-		{
-			frame = 0;
-			
-			evolve();
-			gen++;
 		}
 		
-//		if(ticks % 5 == 0)
-//		{
-//			target.x = Main.HEIGHT / 2F - 35;
-//			target.y = 0;
-//			
-//			target.rotateAround(FloatMath.toRadians(ticks / 200F), true);
-//			target.addLocal(Main.WIDTH / 2F, Main.HEIGHT / 2F);
-//		}
+		if(btn != -1)
+		{
+			float nx = game.handler.getX();
+			float ny = game.handler.getY();
+			Vector2F p = new Vector2F(nx, ny);
+			Vector2F d = p.subtract(tx, ty).normalizeLocal();
+			p.set(tx, ty);
+			
+			while(p.distanceSquared(nx, ny) >= 4)
+			{
+				int mx = (int) (p.x / scl);
+				int my = (int) (p.y / scl);
+				int indx = mx + my * (game.width / scl);
+				if(indx >= 0 && indx < grid.length)
+				{
+					grid[indx] = btn == MouseEvent.BUTTON1;
+				}
+				p.addLocal(d);
+			}
+			
+			tx = nx;
+			ty = ny;
+		}
 	}
 
 	@Override
 	public void paint(G2D g2d)
 	{
-		g2d.setColor(Color.WHITE);
-		g2d.setFontSize(18F);
-		g2d.drawString("Generation: " + gen, 5, 15);
-		g2d.enable(G2D.G_CENTER | G2D.G_FILL);
-		g2d.drawCircle(target.x, target.y, 30);
-		g2d.disable(G2D.G_CENTER | G2D.G_FILL);
-		g2d.drawShape(obs);
-		for(Rocket rocket : rockets)
+		g2d.setColor(Color.RED);
+		g2d.enable(G2D.G_FILL);
+		for(int i = 0; i < grid.length; i++)
 		{
-			rocket.draw(g2d);
+			int x = i % (game.width / scl);
+			int y = i / (game.width / scl);
+			if(grid[i])
+			{
+				g2d.drawRectangle(x * scl, y * scl, scl, scl);
+			}
+		}
+		
+		for(int i = 0; i < size; i++)
+		{
+			cars[i].paintCar(g2d);
+		}
+		g2d.disable(G2D.G_FILL);
+
+		g2d.setColor(Color.RED);
+		g2d.drawRectangle(1, 1, g2d.width - 2, g2d.height - 2);
+		
+		g2d.setColor(Color.WHITE);
+		g2d.drawString("Generation: " + StringUtil.commaFormat(gen), 5, 15);
+		g2d.drawString("Average Fitness: " + StringUtil.commaFormat((int) avgFitness), 5, 30);
+		if(speed)
+		{
+			g2d.setColor(Color.GREEN);
+			g2d.drawString("Speeding Evolution", 5, 45);
+		}
+		
+		float mx = game.handler.getX() / scl;
+		float my = game.handler.getY() / scl;
+
+		g2d.setColor(Color.BLUE);
+		g2d.drawRectangle((int) mx * scl, (int) my * scl, scl, scl);
+	}
+	
+	private void nextGeneration()
+	{
+		gen++;
+		float sum = 0;
+		for(Car car : cars)
+		{
+			car.fitness = car.px * car.px;
+			if(car.hitWall)
+			{
+				car.fitness /= 20;
+			}
+			if(car.hitGoal)
+			{
+				car.fitness *= 100 * (((float) frames - car.life) / frames + 1);
+			}
+			sum += car.fitness;
+		}
+		avgFitness = sum / size;
+		for(Car car : cars)
+		{
+			car.fitness /= sum;
+		}
+		Car[] newCars = new Car[size];
+		for(int i = 0; i < size; i++)
+		{
+			float[][] dna;
+			if(Math.random() < 0.1)
+			{
+				dna = null;
+			}
+			else
+			{
+				Car a = getRandomCar();
+				Car b = getRandomCar();
+				dna = breed(a.vels, b.vels);
+			}
+			newCars[i] = new Car(dna);
+		}
+		System.arraycopy(newCars, 0, cars, 0, size);
+	}
+	
+	private void mutate(float[][] dna)
+	{
+		int rng = (int) (Math.random() * frames);
+		dna[rng] = unitVec();
+	}
+	
+	private float[][] breed(float[][] a, float[][] b)
+	{
+		float[][] c = new float[frames][2];
+		int mid = (int) (Math.random() * (frames - 1)) + 1;
+		System.arraycopy(a, 0, c, 0, mid);
+		System.arraycopy(b, mid, c, mid, frames - mid);
+		mutate(c);
+		return c;
+	}
+	
+	private Car getRandomCar()
+	{
+		float chance = (float) Math.random();
+		int i = 0;
+		for(; i < size; i++)
+		{
+			chance -= cars[i].fitness;
+			
+			if(chance <= 0) break;
+		}
+		return cars[Math.min(i, cars.length - 1)];
+	}
+	
+	private float[] unitVec()
+	{
+		float[] v = new float[2];
+		double ang = Math.random() * Math.PI * 2;
+		v[0] = (float) Math.cos(ang);
+		v[1] = (float) Math.sin(ang);
+		return v;
+	}
+	
+	public void mouse(float x, float y, boolean pressed)
+	{
+		if(pressed)
+		{
+			if(btn == -1)
+			{
+				tx = x;
+				ty = y;
+				btn = handler.getButton();
+			}
+		}
+		else
+		{
+			btn = -1;
 		}
 	}
 	
-	public void evolve()
+	public void key(int key, char keyChar, boolean pressed)
 	{
-		List<Rocket> rs = new ArrayList<>();
-		float maxWorth = 0;
-		
-		for(Rocket rocket : rockets)
+		if(!pressed)
 		{
-			float d = rocket.pos.distance(target);
-			rocket.worth = Main.WIDTH - d;
-			
-			rocket.worth = rocket.complete ? rocket.worth * 10 : rocket.worth;
-			rocket.worth = rocket.dead ? rocket.worth / 10 : rocket.worth;
-			
-			if(rocket.worth > maxWorth)
+			if(key == KeyEvent.VK_X)
 			{
-				maxWorth = rocket.worth;
+				paused = !paused;
+			}
+			if(key == KeyEvent.VK_C)
+			{
+				speed = !speed;
+			}
+			if(key == KeyEvent.VK_R)
+			{
+				boolean[] prev = null;
+				if(game.handler.isKeyDown(KeyEvent.VK_SHIFT))
+				{
+					prev = Arrays.copyOf(grid, grid.length);
+				}
+				reset();
+				if(prev != null)
+				{
+					System.arraycopy(prev, 0, grid, 0, grid.length);
+				}
+			}
+		}
+	}
+	
+	public class Car
+	{
+		private float px, py, vx, vy, rot, fitness;
+		private float[][] vels;
+		private boolean hitWall, hitGoal;
+		private int life;
+		
+		public Car(float[][] vels)
+		{
+			px = game.width / 12;
+			py = game.height / 2;
+			this.vels = new float[frames][2];
+			if(vels == null)
+			{
+				for(int i = 0; i < frames; i++)
+				{
+					this.vels[i] = unitVec();
+				}
+			}
+			else
+			{
+				System.arraycopy(vels, 0, this.vels, 0, frames);
 			}
 		}
 		
-		for(Rocket rocket : rockets)
+		public void updateCar(int frame)
 		{
-			for(int i = 0; i < rocket.worth / maxWorth * 100; i++)
+			if(!hitGoal && !hitWall)
 			{
-				rs.add(rocket);
+				vx += vels[frame][0];
+				vy += vels[frame][1];
+				float len = (float) Math.sqrt(vx * vx + vy * vy);
+				if(len > 9)
+				{
+					vx = vx / len * 9;
+					vy = vy / len * 9;
+				}
+				px += vx;
+				py += vy;
+				rot = (float) (Math.atan2(vy, vx) * 180 / Math.PI);
+				boolean hit = false;
+				
+				if(px > game.width)
+				{
+					hitGoal = true;
+					hit = true;
+				}
+				if(py < 0 || py >= game.height || px < 0)
+				{
+					hitWall = true;
+					hit = true;
+				}
+				int cx = (int) (px / scl);
+				int cy = (int) (py / scl);
+				int indx = cx + cy * (game.width / scl);
+				if(indx < 0 || indx >= grid.length || grid[indx])
+				{
+					hitWall = true;
+					hit = true;
+				}
+				
+				if(hit)
+				{
+					life = frame;
+				}
 			}
 		}
 		
-		for(int i = 0; i < rockets.length; i++)
+		public void paintCar(G2D g2d)
 		{
-			rockets[i] = new Rocket(DNA.child(Rand.nextFrom(rs).dna, Rand.nextFrom(rs).dna));
+			Color clr = Color.WHITE;
+			if(hitWall)
+			{
+				clr = Color.RED;
+			}
+			else if(hitGoal)
+			{
+				clr = Color.GREEN;
+			}
+			g2d.setColor(clr, 0.6F);
+			g2d.translate(px, py);
+			g2d.rotate(rot);
+			g2d.drawRectangle(-15, -7.5, 30, 15);
+			g2d.rotate(-rot);
+			g2d.translate(-px, -py);
 		}
 	}
 
 	public static void main(String[] args)
 	{
-		System.setProperty("Main.WIDTH", "1024");
-		System.setProperty("Main.HEIGHT", "768");
-		SmartRockets game = new SmartRockets();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Smart Rockets";
 		settings.version = "0.0.1";
-		settings.quality = Quality.POOR;
-		settings.width = 1024;
-		settings.height = 768;
+		settings.quality = Quality.GOOD;
+		settings.width = 1280;
+		settings.height = 720;
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 //		settings.maxFPS = 60;
 		settings.maxFPS = -1;
-		
-		Main.initialize(game, settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new SmartRockets(frame.game));
+		frame.launch();
 	}
 }

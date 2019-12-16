@@ -1,0 +1,1 @@
+This little project is, simply, a modding engine. All of the *games* that are installed in the adjacent folders. This not only includes games that were made before this addition but even after as it dynamically loads all the games, including games after this, from their class files, respectively.

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -18,30 +18,23 @@ public class JsonDouble extends JsonPrimitive
 {
 	private double value;
 
+	public JsonDouble()
+	{
+		this(0D);
+	}
+
 	public JsonDouble(double value)
 	{
-		this(value, true);
-	}
-
-	public JsonDouble(boolean mutable)
-	{
-		this(0, mutable);
-	}
-
-	public JsonDouble(double value, boolean mutable)
-	{
-		super(mutable);
 		this.value = value;
 	}
 
-	public double getValue()
+	public double get()
 	{
 		return value;
 	}
 
-	public JsonDouble setValue(double value)
+	public JsonDouble set(double value)
 	{
-		if (!isMutable()) throw isntMutable();
 		this.value = value;
 		return this;
 	}

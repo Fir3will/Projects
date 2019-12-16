@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -78,6 +78,7 @@ public class FileUtil
 		{
 			done &= deleteFile(f);
 		}
+		if(done) file.delete();
 		return done;
 	}
 
@@ -111,6 +112,18 @@ public class FileUtil
 		{
 			writeToFile(file, s);
 		}
+	}
+	
+	public static void resetFile(String file, byte[] data)
+	{
+		resetFile(file);
+		writeToFile(file, data);
+	}
+	
+	public static void resetFile(File file, byte[] data)
+	{
+		resetFile(file);
+		writeToFile(file, data);
 	}
 
 	public static void resetFile(String file, String... lines)
@@ -224,6 +237,26 @@ public class FileUtil
 	{
 		String s = file.toString();
 		return s.substring(s.lastIndexOf(".") + 1, s.length());
+	}
+
+	public static byte[] readAll(String file)
+	{
+		return readAll(new File(file));
+	}
+
+	public static byte[] readAll(File file)
+	{
+		try
+		{
+			FileInputStream fin = new FileInputStream(file);
+			byte[] arr = IOUtil.readAll(fin);
+			fin.close();
+			return arr;
+		}
+		catch(IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static DataTag loadFrom(File file)

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,7 +16,6 @@ package com.hk.math.expression;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.Objects;
 
 public class Expression
 {
@@ -24,7 +23,7 @@ public class Expression
 
 	public Expression(String str) throws ExpressionFormatException
 	{
-		str = Objects.requireNonNull(str).replaceAll("\\s", "");
+		str = str.replaceAll("\\s", "");
 
 		if (str.length() == 1)
 		{

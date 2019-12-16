@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -14,7 +14,9 @@
  **************************************************************************/
 package com.hk.math.vector;
 
-public class Matrix4F
+import java.io.Serializable;
+
+public class Matrix4F implements Serializable
 {
 	public float m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
 
@@ -87,4 +89,6 @@ public class Matrix4F
 		this.m33 = val;
 		return this;
 	}
+
+	private static final long serialVersionUID = -8448067512979362709L;
 }

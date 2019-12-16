@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,22 +16,25 @@ package main.diffusionlimitedagregation;
 
 import java.awt.Color;
 
+import com.hk.g2d.G2D;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.Rand;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
-public class DiffusionLA extends Game
+public class DiffusionLA extends GuiScreen
 {
-	public final int scl = 5, width = Main.WIDTH / scl, height = Main.HEIGHT / scl;
+	public final int scl = 3, width, height;
 	public final int[][] grid;
 	public int set = 2;
+	private boolean flip;
 	
-	public DiffusionLA()
+	public DiffusionLA(com.hk.g2d.Game game)
 	{
+		super(game);
+		width = game.width / scl;
+		height = game.height / scl;
 		grid = new int[width][height];	
 		grid[width / 2][height / 2] = set;
 		int loop = 10;
@@ -52,17 +55,19 @@ public class DiffusionLA extends Game
 				grid[width - i - 1][y] = 1;
 			}
 		}
+		flip = Rand.nextBoolean();
 	}
 	
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
+		flip = !flip;
 		for(int x1 = 0; x1 < width; x1++)
 		{
 			for(int y1 = 0; y1 < height; y1++)
 			{
-				int x = ticks % 2 == 0 ? x1 : width - x1 - 1;
-				int y = ticks % 2 == 0 ? y1 : height - y1 - 1;
+				int x = flip ? x1 : width - x1 - 1;
+				int y = flip ? y1 : height - y1 - 1;
 				if(grid[x][y] == 1)
 				{
 					boolean move = true;
@@ -124,8 +129,8 @@ public class DiffusionLA extends Game
 					}
 					if(grid[x][y] > 1)
 					{
-						float hue = grid[x][y] / (float) set / 2F;
-						g2d.setColor(new Color(Color.HSBtoRGB(hue, 1F, 1F)));
+						float hue = 0.5f + (set - grid[x][y]) / (float) set / 2F;
+						g2d.setColor(Color.HSBtoRGB(hue, 1F, 1F));
 					}
 					g2d.drawRectangle(x * scl, y * scl, scl, scl);
 				}
@@ -141,9 +146,7 @@ public class DiffusionLA extends Game
 	
 	public static void main(String[] args)
 	{
-		DiffusionLA game = new DiffusionLA();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Diffusion-Limited Aggregation";
 		settings.version = "0.0.1";
 		settings.quality = Quality.POOR;
@@ -152,7 +155,9 @@ public class DiffusionLA extends Game
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
-		
-		Main.initialize(game, settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new DiffusionLA(frame.game));
+		frame.launch();
 	}
 }

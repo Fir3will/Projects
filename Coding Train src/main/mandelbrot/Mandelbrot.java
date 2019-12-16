@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,25 +16,28 @@ package main.mandelbrot;
 
 import java.awt.Color;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 
-public class Mandelbrot extends Game
+public class Mandelbrot extends GuiScreen
 {
 	private int iters = 100;
 	private final int scale = 2, w, h;
 	
-	public Mandelbrot()
+	public Mandelbrot(Game game)
 	{
-		w = Main.WIDTH / scale;
-		h = Main.HEIGHT / scale;
+		super(game);
+		
+		w = game.width / scale;
+		h = game.height / scale;
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 		
 	}
@@ -80,11 +83,7 @@ public class Mandelbrot extends Game
 
 	public static void main(String[] args)
 	{
-		System.setProperty("Main.WIDTH", "1024");
-		System.setProperty("Main.HEIGHT", "768");
-		Mandelbrot game = new Mandelbrot();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Mandelbrot";
 		settings.version = "0.0.1";
 		settings.quality = Quality.POOR;
@@ -94,6 +93,8 @@ public class Mandelbrot extends Game
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
 		
-		Main.initialize(game, settings);
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Mandelbrot(frame.game));
+		frame.launch();
 	}
 }

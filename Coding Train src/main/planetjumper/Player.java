@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,15 +16,17 @@ package main.planetjumper;
 
 import java.awt.Color;
 
+import com.hk.g2d.G2D;
+import com.hk.math.MathUtil;
 import com.hk.math.vector.Vector2F;
-
-import main.G2D;
 
 public class Player
 {
 	public final Jumper game;
 	public final Vector2F pos, vel, acc;
 	public float rot, rotVel;
+	public int rotSide = 0;
+	public boolean boost;
 	
 	public Player(Jumper game)
 	{
@@ -37,21 +39,27 @@ public class Player
 		rotVel = 0;
 	}
 	
-	public void updatePlayer(int ticks)
+	public void updatePlayer(double delta)
 	{
-		vel.addLocal(acc);
-		pos.addLocal(vel);
+		if(boost)
+		{
+			vel.x += Math.cos(rot * Math.PI / 180) * delta;
+			vel.y += Math.sin(rot * Math.PI / 180) * delta;
+		}
+		vel.x += acc.x * delta;
+		vel.y += acc.y * delta;
+
+		pos.x += vel.x * delta;
+		pos.y += vel.y * delta;
 		acc.zero();
 		
-		rot += rotVel;
-		while(rot > 360)
+		rotSide = MathUtil.sign(rotSide);
+		if(rotSide != 0)
 		{
-			rot -= 360;
+			rotVel += 180 * delta * rotSide;
 		}
-		while(rot < 0)
-		{
-			rot += 360;
-		}
+		rot += rotVel * delta;
+		rot %= 360;
 	}
 	
 	public void paintPlayer(G2D g2d)

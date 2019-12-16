@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,37 +16,39 @@ package main.maze;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.Rand;
 import com.hk.math.vector.Color3F;
 
-public class Maze extends Game
+public class Maze extends GuiScreen
 {
 	public static final int SIZE = 20;
 	private final Deque<Cell> stack = new ArrayDeque<>();	
-	private final Cell[][] cells = new Cell[Main.WIDTH / SIZE][Main.HEIGHT / SIZE];
+	private final Cell[][] cells;// = new Cell[G2DEngine.WIDTH / SIZE][G2DEngine.HEIGHT / SIZE];
 	private boolean solve, done, justComplete;
 	private Cell current;
 	private Cell look, start, end;
 	
 	private final Deque<Cell> correctPath = new ArrayDeque<>();
 	private Cell[] pathArray;
-	private final boolean[][] wasHere = new boolean[Main.WIDTH / SIZE][Main.HEIGHT / SIZE];
+	private final boolean[][] wasHere;// = new boolean[G2DEngine.WIDTH / SIZE][G2DEngine.HEIGHT / SIZE];
 	
-	public Maze()
+	public Maze(Game game)
 	{
+		super(game);
+		cells = new Cell[game.width / SIZE][game.height / SIZE];
+		wasHere = new boolean[game.width / SIZE][game.height / SIZE];
 		for(int x = 0; x < cells.length; x++)
 		{
 			for(int y = 0; y < cells[x].length; y++)
@@ -58,7 +60,7 @@ public class Maze extends Game
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 		if(!done && current != null)
 		{
@@ -140,7 +142,7 @@ public class Maze extends Game
 		}
 		else
 		{
-			g2d.setColor(new Color(0x000000));
+			g2d.setColor(Color.BLACK);
 			g2d.enable(G2D.G_FILL);
 			g2d.drawRectangle(0, 0, g2d.width, g2d.height);
 			g2d.disable(G2D.G_FILL);
@@ -267,29 +269,29 @@ public class Maze extends Game
 		}
 	}
 
-	public void mouse(float x, float y, boolean pressed, int button)
+	public void mouse(float x, float y, boolean pressed)
 	{
 		if(!pressed && done)
 		{
-			if(button == MouseEvent.BUTTON1)
+			Cell c = getCell((int) (x / SIZE), (int) (y / SIZE));
+			if(start == null)
 			{
-				start = getCell((int) (x / SIZE), (int) (y / SIZE));
-				
-				beginSolve();
-				if(start != null && end != null)
-				{
-					solve = true;
-				}
+				start = c;
 			}
-			else if(button == MouseEvent.BUTTON3)
+			else if(end == null)
 			{
-				end = getCell((int) (x / SIZE), (int) (y / SIZE));
-				
-				beginSolve();
-				if(start != null && end != null)
-				{
-					solve = true;
-				}
+				end = c;
+			}
+			else
+			{
+				start = end = null;
+				pathArray = null;
+			}
+			
+			beginSolve();
+			if(start != null && end != null)
+			{
+				solve = true;
 			}
 		}
 	}
@@ -304,7 +306,7 @@ public class Maze extends Game
 	
 	public static void main(String[] args)
 	{
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Maze";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
@@ -312,7 +314,9 @@ public class Maze extends Game
 		settings.height = 600;
 		settings.showFPS = true;
 		settings.maxFPS = -1;
-		
-		Main.initialize(new Maze(), settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Maze(frame.game));
+		frame.launch();
 	}
 }

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -157,25 +157,25 @@ public class Json
 
 	public static Object jsonToObject(Class<?> cls, JsonValue value)
 	{
-		if (value.isNull() || value == null)
+		if (value == null || value.isNull())
 		{
 			return null;
 		}
 		else if (value instanceof JsonLong)
 		{
-			return ((JsonLong) value).getValue();
+			return ((JsonLong) value).get();
 		}
 		else if (value instanceof JsonDouble)
 		{
-			return ((JsonDouble) value).getValue();
+			return ((JsonDouble) value).get();
 		}
 		else if (value instanceof JsonBoolean)
 		{
-			return ((JsonBoolean) value).getValue();
+			return ((JsonBoolean) value).get();
 		}
 		else if (value instanceof JsonString)
 		{
-			return ((JsonString) value).getValue();
+			return ((JsonString) value).get();
 		}
 		return JsonSerializer.fromJson(value, cls);
 	}

@@ -1,4 +1,4 @@
-### Smart Rockets (Doesn't really work well)
+### Smart Rockets
 Smart rockets that use a genetic algorithm to find the best path to a specific spot. Once all the rockets in the current generation die off, the most fit rocket's `DNAs` are copied and slightly mutated and placed in a new rocket. Using this algorithm, the best rocket will end up getting to that position.  
 [Jer Thorpe's Smart Rockets](http://www.blprnt.com/smartrockets) (Good algorithm, and works great)  
 [Genetic Algorithm](https://en.wikipedia.org/wiki/Genetic_algorithm)  

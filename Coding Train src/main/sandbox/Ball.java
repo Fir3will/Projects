@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,32 +16,36 @@ package main.sandbox;
 
 import java.awt.Color;
 
-import com.hk.math.Rand;
+import com.hk.g2d.Game;
+import com.hk.math.vector.Color3F;
 import com.hk.math.vector.Vector2F;
-
-import main.Main;
 
 public class Ball
 {
+	public final Game game;
 	public final Vector2F pos, vel;
-	public final Color clr;
+	private final Color3F origClr;
+	public final Color3F clr;
 	public final float radius, mass;
 	
-	public Ball(float radius)
+	public Ball(Game game, float radius, float hue)
 	{
+		this.game = game;
 		this.radius = radius;
 		mass = radius / 30F;
 		pos = new Vector2F();
 		vel = new Vector2F();
 		
-		clr = Color.getHSBColor(Rand.nextFloat(), 0.98F, 0.98F);
+		Color c = Color.getHSBColor(hue, 0.98F, 0.98F);
+		clr = new Color3F(c.getRed() / 255F, c.getGreen() / 255F, c.getBlue() / 255F);
+		origClr = new Color3F(clr);
 	}
 	
-	public void update(boolean applyGravity)
+	public void update(double delta, boolean applyGravity)
 	{
 		if(applyGravity)
 		{
-			vel.y += 0.01F;
+			vel.y += 9.81 * delta;
 		}
 		pos.addLocal(vel);
 
@@ -52,9 +56,9 @@ public class Ball
 			vel.x = Math.abs(vel.x);
 			onGround = true;
 		}
-		if(pos.x > Main.WIDTH - radius)
+		if(pos.x > game.width - radius)
 		{
-			pos.x = Main.WIDTH - radius;
+			pos.x = game.width - radius;
 			vel.x = -Math.abs(vel.x);
 			onGround = true;
 		}
@@ -66,9 +70,9 @@ public class Ball
 			onGround = true;
 		}
 		// COMMENT OUT FOR NO ROOF
-		if(pos.y > Main.HEIGHT - radius)
+		if(pos.y > game.height - radius)
 		{
-			pos.y = Main.HEIGHT - radius;
+			pos.y = game.height - radius;
 			vel.y = -Math.abs(vel.y);
 			onGround = true;
 		}
@@ -77,6 +81,7 @@ public class Ball
 		{
 			vel.multLocal(DAMPING);
 		}
+		clr.interpolateLocal(origClr, 0.1F);
 	}
 	
 	public boolean inBounds(float x, float y)
@@ -91,6 +96,8 @@ public class Ball
 	
 	public void resolveCollision(Ball ball)
 	{
+		ball.clr.set(clr.interpolateLocal(ball.clr, 0.5F));
+		
 		// get the mtd
 	    Vector2F delta = pos.subtract(ball.pos);
 	    float d = delta.length();
@@ -98,7 +105,7 @@ public class Ball
 	    Vector2F mtd = delta.mult(((radius + ball.radius) - d) / d); 
 
 
-	    // resolve intersection --
+	    // resolve intersection
 	    // inverse mass quantities
 	    float im1 = 1 / mass; 
 	    float im2 = 1 / ball.mass;
@@ -108,8 +115,7 @@ public class Ball
 	    ball.pos.subtractLocal(mtd.mult(im2 / (im1 + im2)));
 
 	    // impact speed
-	    Vector2F v = vel.subtract(ball.vel);
-	    float vn = v.dot(mtd.normalizeLocal());
+	    float vn = vel.subtract(ball.vel).dot(mtd.normalizeLocal());
 
 	    // sphere intersecting but moving away from each other already
 	    if (vn > 0F) return;

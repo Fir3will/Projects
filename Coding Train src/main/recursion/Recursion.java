@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -15,31 +15,29 @@
 package main.recursion;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
 
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.FloatMath;
 import com.hk.math.vector.Vector2F;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
-public class Recursion extends Game
+public class Recursion extends GuiScreen
 {
-	private final List<Trail> trails;
+	private double time;
 	
-	public Recursion()
+	public Recursion(Game game)
 	{
-		trails = new ArrayList<>();
+		super(game);
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
-		
+		time += delta * 3;
 	}
 
 	@Override
@@ -47,26 +45,12 @@ public class Recursion extends Game
 	{
 		g2d.setColor(Color.WHITE);
 		g2d.enable(G2D.G_CENTER);
-		drawCircle(g2d, getTicks() / 5F, g2d.width / 2F, g2d.height / 2F, g2d.height / 2F);
+		drawCircle(g2d, (float) time, g2d.width / 2F, g2d.height / 2F, g2d.height / 2F);
 		g2d.disable(G2D.G_CENTER);
-
-		g2d.setColor(Color.DARK_GRAY);
-		for(int i = 0; i < trails.size(); i++)
-		{
-			Trail t = trails.get(i);
-			g2d.drawPoint(t.pos.x, t.pos.y);
-			
-			if(t.isDead())
-			{
-				trails.remove(i);
-				i--;
-			}
-		}
 	}
 		
 	public void drawCircle(G2D g2d, float ticks, float x, float y, float radius)
 	{
-		trails.add(new Trail(x, y));
 		g2d.drawCircle(x, y, radius);
 		
 		if(radius > 5)
@@ -81,8 +65,7 @@ public class Recursion extends Game
 
 	public static void main(String[] args)
 	{
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Recursion";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
@@ -91,26 +74,9 @@ public class Recursion extends Game
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
-		
-		System.setProperty("Main.WIDTH", String.valueOf(settings.width / 4));
-		System.setProperty("Main.HEIGHT", String.valueOf(settings.height / 4));
-		Recursion game = new Recursion();
-		Main.initialize(game, settings);
-	}
-	
-	private class Trail
-	{
-		public final Vector2F pos;
-		private int ticks;
-		
-		public Trail(float x, float y)
-		{
-			this.pos = new Vector2F(x, y);
-		}
-		
-		public boolean isDead()
-		{
-			return ticks++ >= 100;
-		}
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Recursion(frame.game));
+		frame.launch();
 	}
 }

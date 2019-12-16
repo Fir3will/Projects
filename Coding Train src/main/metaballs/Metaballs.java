@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -15,30 +15,34 @@
 package main.metaballs;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.vector.Vector2F;
 
-public class Metaballs extends Game
+public class Metaballs extends GuiScreen
 {
 	private final int scale = 2, h, w;
 	private final Metaball[] balls;
 	private final BufferedImage img;
+	private boolean dark;
 	
-	public Metaballs()
+	public Metaballs(Game game)
 	{
-		w = Main.WIDTH / scale;
-		h = Main.HEIGHT / scale;
+		super(game);
+		
+		w = game.width / scale;
+		h = game.height / scale;
 		img = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		
-		balls = new Metaball[10];
+		balls = new Metaball[25];
 		for(int i = 0; i < balls.length; i++)
 		{
 			balls[i] = new Metaball();
@@ -46,11 +50,11 @@ public class Metaballs extends Game
 	}
 
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 		for(int i = 0; i < balls.length; i++)
 		{
-			balls[i].update();
+			balls[i].update(delta);
 		}
 		for(int x = 0; x < w; x++)
 		{
@@ -61,10 +65,15 @@ public class Metaballs extends Game
 				{
 					sum += 5F / Point2D.distance(x, y, balls[i].pos.x, balls[i].pos.y);
 				}
-				Color c = new Color(Color.HSBtoRGB(1F - Math.min(sum, 1F), 1F, 1F));
-				img.setRGB(x, y, c.getRGB());
-//				g2d.setColor(c);
-//				g2d.drawRectangle(x * scale, y * scale, scale, scale);
+				if(dark)
+				{
+					img.setRGB(x, y, sum > 1 ? 0xFFFFFFFF : 0xFF000000);
+				}
+				else
+				{
+					Color c = new Color(Color.HSBtoRGB(1F - Math.min(sum, 1F), 1F, 1F));
+					img.setRGB(x, y, c.getRGB());
+				}
 			}
 		}
 	}
@@ -74,17 +83,19 @@ public class Metaballs extends Game
 	{
 		g2d.scale(scale, scale);
 		g2d.drawImage(img, 0, 0);
-//		g2d.enable(G2D.G_FILL);
-//		g2d.disable(G2D.G_FILL);
+	}
+	
+	public void key(int key, char keyChar, boolean pressed)
+	{
+		if(!pressed && key == KeyEvent.VK_SPACE)
+		{
+			dark = !dark;
+		}
 	}
 
 	public static void main(String[] args)
 	{
-		System.setProperty("Main.WIDTH", "1024");
-		System.setProperty("Main.HEIGHT", "768");
-		Metaballs game = new Metaballs();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Metaballs";
 		settings.version = "0.0.1";
 		settings.quality = Quality.POOR;
@@ -93,17 +104,20 @@ public class Metaballs extends Game
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
-		
-		Main.initialize(game, settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Metaballs(frame.game));
+		frame.launch();
 	}
 	
 	private class Metaball
 	{
-		public final Vector2F pos = new Vector2F(w / 2, h / 2), vel = Vector2F.randUnitVector();
+		public final Vector2F pos = new Vector2F(w / 2, h / 2), vel = Vector2F.randUnitVector().multLocal(25);
 		
-		public void update()
+		public void update(double delta)
 		{
-			pos.addLocal(vel);
+			pos.x += vel.x * delta;
+			pos.y += vel.y * delta;
 			
 			if(pos.x < 0 || pos.x > w)
 			{

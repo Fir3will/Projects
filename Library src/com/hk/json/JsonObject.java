@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -14,73 +14,58 @@
  **************************************************************************/
 package com.hk.json;
 
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-public class JsonObject extends JsonValue
+public class JsonObject extends JsonValue implements Iterable<Map.Entry<String, JsonValue>>
 {
 	private final Map<String, JsonValue> values;
 
 	public JsonObject()
 	{
-		values = new HashMap<>();
-	}
-
-	public JsonObject(boolean mutable)
-	{
-		super(mutable);
-		values = new HashMap<>();
+		values = new LinkedHashMap<>();
 	}
 
 	public JsonObject set(String name, JsonValue value)
 	{
-		if (!isMutable()) throw isntMutable();
-		if (value == null)
-		{
-			value = JsonNull.NULL;
-		}
-		if (value == this)
-		{
+		if (this == value)
 			throw new IllegalArgumentException("Can't add this to this");
-		}
-		values.put(name, value);
+
+//		System.out.println("Put '" + name + "' to " + value);
+		values.put(name, value == null ? JsonNull.NULL : value);
 		return this;
 	}
 
 	public JsonObject set(String name, String value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.put(name, new JsonString(value, false));
+		set(name, new JsonString(value));
 		return this;
 	}
 
 	public JsonObject set(String name, long value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.put(name, new JsonLong(value, false));
+		set(name, new JsonLong(value));
 		return this;
 	}
 
 	public JsonObject set(String name, double value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.put(name, new JsonDouble(value, false));
+		set(name, new JsonDouble(value));
 		return this;
 	}
 
 	public JsonObject set(String name, boolean value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.put(name, new JsonBoolean(value, false));
+		set(name, new JsonBoolean(value));
 		return this;
 	}
 
 	public JsonObject set(String name, Object value)
 	{
-		if (!isMutable()) throw isntMutable();
-		values.put(name, Json.objectToJson(value));
+		set(name, Json.objectToJson(value));
 		return this;
 	}
 
@@ -91,8 +76,12 @@ public class JsonObject extends JsonValue
 
 	public JsonValue remove(String name)
 	{
-		if (!isMutable()) throw isntMutable();
 		return values.remove(name);
+	}
+
+	public void removeAll()
+	{
+		values.clear();
 	}
 
 	public boolean containsName(String name)
@@ -124,5 +113,20 @@ public class JsonObject extends JsonValue
 	public int hashCode()
 	{
 		return 34 + Objects.hashCode(values);
+	}
+	
+	public Iterator<String> keys()
+	{
+		return values.keySet().iterator();
+	}
+	
+	public Iterator<Map.Entry<String, JsonValue>> iterator()
+	{
+		return values.entrySet().iterator();
+	}
+	
+	public Iterator<JsonValue> values()
+	{
+		return values.values().iterator();
 	}
 }

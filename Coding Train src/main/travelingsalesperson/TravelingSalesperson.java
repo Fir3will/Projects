@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -15,36 +15,52 @@
 package main.travelingsalesperson;
 
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
-import com.hk.array.ArrayUtil;
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.Rand;
 import com.hk.math.vector.Vector2F;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
-public class TravelingSalesperson extends Game
+public class TravelingSalesperson extends GuiScreen
 {
 	private final int amtOfCities = 10;
 	private final Vector2F[] cities;
+	private final float[][] distances;
 	private final int[] bestOrder;
 	private double bestDist = Double.MAX_VALUE;
 	private final int[] order;
 	private double orderDist;
 	
-	public TravelingSalesperson()
+	public TravelingSalesperson(Game game)
 	{
+		super(game);
+		
 		cities = new Vector2F[amtOfCities];
-		for(int i = 0; i < cities.length; i++)
-		{
-			cities[i] = new Vector2F(Rand.nextFloat(Main.WIDTH), Rand.nextFloat(Main.HEIGHT));
-		}
+		distances = new float[amtOfCities][amtOfCities];
 		bestOrder = new int[amtOfCities];
 		order = new int[amtOfCities];
+		reset();
+	}
+	
+	private void reset()
+	{
+		for(int i = 0; i < cities.length; i++)
+		{
+			cities[i] = new Vector2F(Rand.nextFloat(game.width), Rand.nextFloat(150, game.height));
+		}
+		for(int i = 0; i < cities.length; i++)
+		{
+			for(int j = 0; j < cities.length; j++)
+			{
+				distances[i][j] = i == j ? 0 : cities[i].distance(cities[j]);
+			}
+		}
 		for(int i = 0; i < order.length; i++)
 		{
 			order[i] = i;
@@ -54,17 +70,32 @@ public class TravelingSalesperson extends Game
 	}
 	
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
-		ArrayUtil.swap(order, Rand.nextInt(order.length), Rand.nextInt(order.length));
-		orderDist = calculateDist(order);
-		
-		if(orderDist < bestDist)
+		int i, j;
+		int amt = 2500;
+		for(; amt >= 0; amt--)
 		{
-			bestDist = orderDist;
-			for(int i = 0; i < order.length; i++)
+			System.arraycopy(bestOrder, 0, order, 0, amtOfCities);
+			int switches = Rand.nextInt(1, amtOfCities);
+			for(; switches >= 0; switches--)
 			{
-				bestOrder[i] = order[i];
+				do
+				{
+					i = Rand.nextInt(amtOfCities);
+					j = Rand.nextInt(amtOfCities);
+				} while(i == j);
+				int tmp = order[i];
+				order[i] = order[j];
+				order[j] = tmp;
+				i = j = 0;
+			}
+			orderDist = calculateDist(order);
+			
+			if(orderDist < bestDist)
+			{
+				bestDist = orderDist;
+				System.arraycopy(order, 0, bestOrder, 0, amtOfCities);
 			}
 		}
 	}
@@ -94,39 +125,49 @@ public class TravelingSalesperson extends Game
 		}
 		g2d.drawLine(cities[bestOrder[bestOrder.length - 1]].x, cities[bestOrder[bestOrder.length - 1]].y, cities[bestOrder[0]].x, cities[bestOrder[0]].y);
 		
+		g2d.setFontSize(24F);
 		g2d.setColor(Color.GREEN);
-		g2d.drawString("Best Order: " + Arrays.toString(bestOrder) + ", " + String.format("%.2f", bestDist), 5, 15);
+		g2d.drawString("Best Order: " + Arrays.toString(bestOrder) + ", " + String.format("%.2f", bestDist), 5, 25);
 		g2d.setColor(Color.GRAY);
-		g2d.drawString("Current Order: " + Arrays.toString(order) + ", " + String.format("%.2f", orderDist), 5, 30);
+		g2d.drawString("Current Order: " + Arrays.toString(order) + ", " + String.format("%.2f", orderDist), 5, 55);
 	}
 	
 	private double calculateDist(int[] order)
 	{
 		double total = 0D;
-		for(int i = 0; i < order.length - 1; i++)
+		for(int i = 0; i < order.length; i++)
 		{
-			total += cities[order[i]].distance(cities[order[i + 1]]);
+			int a = order[i];
+			int b = i == order.length - 1 ? 0 : order[i + 1];
+//			total += cities[a].distance(cities[b]);
+			total += distances[a][b];
 		}
 		
 		return total;
 	}
 	
-	public static void main(String[] args)
+	public void key(int key, char keyChar, boolean pressed)
 	{
-		System.setProperty("Main.WIDTH", "1024");
-		System.setProperty("Main.HEIGHT", "768");
-		TravelingSalesperson game = new TravelingSalesperson();
-		
-		GameSettings settings = new GameSettings();
+		if(key == KeyEvent.VK_SPACE)
+		{
+			reset();
+		}
+	}
+	
+	public static void main(String[] args)
+	{	
+		Settings settings = new Settings();
 		settings.title = "Traveling Salesperson";
 		settings.version = "0.0.1";
-		settings.quality = Quality.POOR;
-		settings.width = 1024;
-		settings.height = 768;
+		settings.quality = Quality.GOOD;
+		settings.width = 1280;
+		settings.height = 720;
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
-		
-		Main.initialize(game, settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new TravelingSalesperson(frame.game));
+		frame.launch();
 	}
 }

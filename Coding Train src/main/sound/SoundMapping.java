@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -25,23 +25,25 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.TargetDataLine;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.PrimitiveUtil;
 
-public class SoundMapping extends Game
+public class SoundMapping extends GuiScreen
 {
 	private float zoom = 1;
 	private final float[] heights;
 	private final AudioFormat fmt;
 	private final Clip clip;
 	
-	public SoundMapping() throws Exception
+	public SoundMapping(Game game) throws Exception
 	{
+		super(game);
+		
 		AudioInputStream ais = AudioSystem.getAudioInputStream(SoundMapping.class.getResource("/main/sound/test.wav"));
 		fmt = ais.getFormat();
 		TargetDataLine dl = AudioSystem.getTargetDataLine(fmt);
@@ -68,11 +70,8 @@ public class SoundMapping extends Game
 		clip.start();
 	}
 	
-	public void initialize()
-	{}
-
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{}
 
 	@Override
@@ -99,7 +98,21 @@ public class SoundMapping extends Game
 	{
 		if(keyCode == KeyEvent.VK_SPACE)
 		{
-			clip.stop();
+			if(pressed)
+				return;
+			
+			if(clip.isRunning())
+				clip.stop();
+			else
+				clip.start();
+		}
+		else if(!pressed)
+		{
+			if(keyCode == KeyEvent.VK_R)
+			{
+				clip.setMicrosecondPosition(0);
+				clip.start();
+			}
 		}
 	}
 	
@@ -110,11 +123,7 @@ public class SoundMapping extends Game
 
 	public static void main(String[] args) throws Exception
 	{
-		System.setProperty("Main.WIDTH", String.valueOf(1200));
-		System.setProperty("Main.HEIGHT", String.valueOf(900));
-		SoundMapping game = new SoundMapping();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Sound Dancer";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
@@ -123,7 +132,10 @@ public class SoundMapping extends Game
 		settings.showFPS = true;
 		settings.background = Color.WHITE;
 		settings.maxFPS = -1;
-		Main.initialize(game, settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new SoundMapping(frame.game));
+		frame.launch();
 	
 	}
 }

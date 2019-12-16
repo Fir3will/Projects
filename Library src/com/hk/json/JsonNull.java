@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -19,9 +19,7 @@ public class JsonNull extends JsonValue
 	public static final JsonNull NULL = new JsonNull();
 
 	public JsonNull()
-	{
-		super(false);
-	}
+	{}
 
 	@Override
 	public String toString(boolean format)

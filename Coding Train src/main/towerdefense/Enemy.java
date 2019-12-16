@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -17,9 +17,8 @@ package main.towerdefense;
 import java.awt.Color;
 import java.awt.Point;
 
+import com.hk.g2d.G2D;
 import com.hk.math.vector.Vector2F;
-
-import main.G2D;
 
 public class Enemy
 {
@@ -35,7 +34,7 @@ public class Enemy
 	public Enemy(TowerDefense game, float x, float y, int maxHealth)
 	{
 		this.game = game;
-		position = new Vector2F(x * 20 + 10, y * 20 + 10);
+		position = new Vector2F(x * 40 + 20, y * 40 + 20);
 		currentSpot = 0;
 		this.health = this.maxHealth = maxHealth;
 	}
@@ -43,12 +42,12 @@ public class Enemy
 	public void update()
 	{
 		Point nextSpot = game.path.get(currentSpot);
-		Vector2F dir = new Vector2F(nextSpot.x * 20 + 10, nextSpot.y * 20 + 10).subtractLocal(position);
+		Vector2F dir = new Vector2F(nextSpot.x * 40 + 20, nextSpot.y * 40 + 20).subtractLocal(position);
 		float dst = dir.length();
 		dir.normalizeLocal().multLocal(speed);
 		if(dst < speed)
 		{
-			position.set(nextSpot.x * 20 + 10, nextSpot.y * 20 + 10);
+			position.set(nextSpot.x * 40 + 20, nextSpot.y * 40 + 20);
 			currentSpot++;
 			
 			if(currentSpot == game.path.size())
@@ -67,9 +66,9 @@ public class Enemy
 	{
 		g2d.enable(G2D.G_CENTER | G2D.G_FILL);
 		g2d.setColor(Color.WHITE);
-		g2d.drawCircle(position.x, position.y, 5);
+		g2d.drawCircle(position.x, position.y, 10);
 		g2d.setColor(Color.BLACK);
-		float f = (health / (float) maxHealth) * 4.8F;
+		float f = (health / (float) maxHealth) * 9.6F;
 		g2d.drawCircle(position.x, position.y, f);
 		g2d.disable(G2D.G_CENTER | G2D.G_FILL);
 		

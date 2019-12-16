@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -14,12 +14,11 @@
  **************************************************************************/
 package main.hexgrid;
 
+import com.hk.g2d.G2D;
 import com.hk.math.FloatMath;
 import com.hk.math.MathUtil;
 import com.hk.math.shape.Polygon;
 import com.hk.math.vector.Vector2F;
-
-import main.G2D;
 
 public class HexCell
 {
@@ -51,13 +50,20 @@ public class HexCell
 		
 	}
 	
-	public void paintCell(G2D g2d)
+	public void paintCell(G2D g2d, boolean coord)
 	{
 		for(int i = 0; i < poly.vertices.size(); i++)
 		{
 			Vector2F a = poly.vertices.get(i);
 			Vector2F b = i == poly.vertices.size() - 1 ? poly.vertices.get(0) : poly.vertices.get(i + 1);
 			g2d.drawLine(a.x, a.y, b.x, b.y);
+		}
+		
+		if(coord)
+		{
+			g2d.enable(G2D.G_CENTER);
+			g2d.drawString(x + ", " + y, rx, ry);
+			g2d.disable(G2D.G_CENTER);
 		}
 	}
 	

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -18,9 +18,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.Objects;
 
+import com.hk.g2d.G2D;
 import com.hk.math.FloatMath;
-
-import main.G2D;
 
 public class Spot
 {
@@ -43,12 +42,12 @@ public class Spot
 		if(type.isNothing()) return;
 
 		g2d.enable(G2D.G_FILL);
-		int ox = xCoord * 20;
-		int oy = yCoord * 20;
+		int ox = xCoord * 40;
+		int oy = yCoord * 40;
 		int rx = ox;
 		int ry = oy;
-		int rw = 20;
-		int rh = 20;
+		int rw = 40;
+		int rh = 40;
 		switch(type)
 		{
 		case NOTHING:
@@ -68,8 +67,6 @@ public class Spot
 			rh -= 4;
 			g2d.setColor(hoverOver ? Color.GREEN : Color.WHITE);
 			break;
-		default:
-			throw new AssertionError(type);
 		}
 		g2d.drawRectangle(rx, ry, rw, rh);
 		
@@ -79,16 +76,16 @@ public class Spot
 			g2d.setColor(Color.BLACK);
 			if(data.damage == 1)
 			{
-				g2d.drawCircle(ox + 5, oy + 5, 5);
+				g2d.drawCircle(ox + 10, oy + 10, 10);
 			}
 			else if(data.damage == 2)
 			{
-				g2d.drawRectangle(ox + 5, oy + 5, 10, 10);
+				g2d.drawRectangle(ox + 10, oy + 10, 20, 20);
 			}
-			float x1 = ox + 10;
-			float y1 = oy + 10;
-			float x2 = FloatMath.cos(data.rotation) * 5F + x1;
-			float y2 = FloatMath.sin(data.rotation) * 5F + y1;
+			float x1 = ox + 20;
+			float y1 = oy + 20;
+			float x2 = FloatMath.cos(data.rotation) * 10F + x1;
+			float y2 = FloatMath.sin(data.rotation) * 10F + y1;
 			g2d.setColor(data.damage == 1 ? Color.GREEN : Color.RED);
 			g2d.drawLine(x1, y1, x2, y2);
 			

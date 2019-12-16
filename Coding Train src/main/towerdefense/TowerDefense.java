@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -20,32 +20,34 @@ import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
+import com.hk.str.StringUtil;
+
 import main.towerdefense.Spot.SpotType;
 
-public class TowerDefense extends Game
+public class TowerDefense extends GuiScreen
 {
 	public final int gridW = 30, gridH = 20;
-	private final DecimalFormat df = new DecimalFormat("#,###");
 	private int hoverX = -1, hoverY = -1, hoverEnemy = -1;
 	private final Spot[][] grid = new Spot[gridW][gridH];
 	public final List<Point> path;
 	public final List<Enemy> enemies;
 	public int health = 100, money = 2500, level = 0;
 	
-	public TowerDefense() throws Exception
+	public TowerDefense(Game game) throws Exception
 	{
+		super(game);
 		path = new ArrayList<>();
 		File f = new File("level.png");
 		BufferedImage img = ImageIO.read(f);
@@ -145,7 +147,7 @@ public class TowerDefense extends Game
 	}
 	
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 		if(health > 0)
 		{
@@ -156,7 +158,7 @@ public class TowerDefense extends Game
 					Spot s = grid[x][y];
 					if(s.data != null)
 					{
-						s.data.update();
+						s.data.update(delta);
 					}
 				}
 			}
@@ -195,10 +197,10 @@ public class TowerDefense extends Game
 			{
 				g2d.enable(G2D.G_FILL);
 				g2d.setColor(new Color(0x55000000, true));
-				g2d.drawCircle(hoverX * 20 + 10 - s.data.reach, hoverY * 20 + 10 - s.data.reach, s.data.reach);
+				g2d.drawCircle(hoverX * 40 + 20 - s.data.reach, hoverY * 40 + 20 - s.data.reach, s.data.reach);
 				g2d.disable(G2D.G_FILL);
 				g2d.setColor(new Color(0xBB000000, true));
-				g2d.drawCircle(hoverX * 20 + 10 - s.data.reach, hoverY * 20 + 10 - s.data.reach, s.data.reach);
+				g2d.drawCircle(hoverX * 40 + 20 - s.data.reach, hoverY * 40 + 20 - s.data.reach, s.data.reach);
 			}
 		}
 		g2d.setColor(Color.WHITE);
@@ -228,7 +230,7 @@ public class TowerDefense extends Game
 		g2d.drawString(health, 115, 20);
 		g2d.disable(G2D.G_CENTER);
 
-		String str = "Money: $" + df.format(money);
+		String str = "Money: $" + StringUtil.commaFormat(money);
 		g2d.drawString(str, 200, 35);
 		if(hoverX != -1 && hoverY != -1)
 		{
@@ -240,12 +242,12 @@ public class TowerDefense extends Game
 				if(!s.data.hasTower)
 				{
 					clr = money >= 20 ? Color.GREEN : Color.RED;
-					extra = " - $20 = " + df.format(money - 20);
+					extra = " - $20 = " + StringUtil.commaFormat(money - 20);
 				}
 				else if(s.data.hasTower && s.data.damage == 1)
 				{
 					clr = money >= 40 ? Color.GREEN : Color.RED;
-					extra = " - $40 = " + df.format(money - 40);
+					extra = " - $40 = " + StringUtil.commaFormat(money - 40);
 				}
 				
 				if(extra != null)
@@ -276,9 +278,10 @@ public class TowerDefense extends Game
 		}
 	}
 	
-	public void mouse(float x, float y, boolean pressed, int button)
+	public void mouse(float x, float y, boolean pressed)
 	{
 		mouseMoved(x, y);
+		int button = handler.getButton();
 		if(!pressed)
 		{
 			if(hoverX != -1 && hoverY != 0)
@@ -295,7 +298,7 @@ public class TowerDefense extends Game
 		{
 			for(int y1 = 0; y1 < gridH; y1++)
 			{
-				if(x >= x1 * 20 && x < x1 * 20 + 20 && y >= y1 * 20 && y < y1 * 20 + 20)
+				if(x >= x1 * 40 && x < x1 * 40 + 40 && y >= y1 * 40 && y < y1 * 40 + 40)
 				{
 					hoverX = x1;
 					hoverY = y1;
@@ -322,9 +325,9 @@ public class TowerDefense extends Game
 			{
 				level++;
 				
-				for(int i = 0; i < level * level; i++)
+				for(int i = 0; i < level + 5; i++)
 				{
-					Enemy e = new Enemy(this, -i, 4, 40 + (int) (5 + (i / 10F)));
+					Enemy e = new Enemy(this, -i, 4, 45 + level * 2);
 					enemies.add(e);
 				}
 			}
@@ -333,7 +336,7 @@ public class TowerDefense extends Game
 	
 	public static void main(String[] args) throws Exception
 	{
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Tower Defense";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
@@ -343,10 +346,9 @@ public class TowerDefense extends Game
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
 
-		System.setProperty("Main.WIDTH", "600");
-		System.setProperty("Main.HEIGHT", "400");
 
-		TowerDefense game = new TowerDefense();
-		Main.initialize(game, settings);
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new TowerDefense(frame.game));
+		frame.launch();
 	}
 }

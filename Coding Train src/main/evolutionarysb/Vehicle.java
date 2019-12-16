@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -17,34 +17,34 @@ package main.evolutionarysb;
 import java.awt.Color;
 import java.util.List;
 
+import com.hk.g2d.G2D;
 import com.hk.math.MathUtil;
 import com.hk.math.Rand;
 import com.hk.math.vector.Vector2F;
 
-import main.G2D;
-import main.Main;
-
 public class Vehicle implements Cloneable
 {
+	private final EvolutionarySB game;
 	public final float mutationRate = 0.01F;
-	public final float maxSpeed = 5F;
-	public final float maxForce = 0.5F;
 	
 	public final Vector2F pos, vel, acc;
-	public final float[] dna = new float[4];
+	public final float[] dna = new float[7];
 	public float health = 1F;
+	public int ticksExisted = 0;
 	
-	public Vehicle(float[] dna)
+	public Vehicle(EvolutionarySB game, float[] dna)
 	{
-		pos = new Vector2F();
-		vel = Vector2F.randUnitVector().multLocal(maxSpeed);
-		acc = new Vector2F();
+		this.game = game;
+		
 		if(dna == null)
 		{
-			this.dna[0] = Rand.nextFloat(4) - 2;
-			this.dna[1] = Rand.nextFloat(4) - 2;
+			this.dna[0] = Rand.nextFloat(-2, 2);
+			this.dna[1] = Rand.nextFloat(-2, 2);
 			this.dna[2] = Rand.nextFloat(100);
 			this.dna[3] = Rand.nextFloat(100);
+			this.dna[4] = Rand.nextFloat(3, 7);
+			this.dna[5] = Rand.nextFloat(0.3F, 0.7F);
+			this.dna[6] = Rand.nextFloat(0.3F, 0.7F);
 		}
 		else
 		{
@@ -52,21 +52,27 @@ public class Vehicle implements Cloneable
 			this.dna[1] = dna[1] + (Rand.nextFloat() < mutationRate ? Rand.nextFloat(0.2F) - 0.1F : 0F);
 			this.dna[2] = dna[2] + (Rand.nextFloat() < mutationRate ? Rand.nextFloat(20) - 10 : 0F);
 			this.dna[3] = dna[3] + (Rand.nextFloat() < mutationRate ? Rand.nextFloat(20) - 10 : 0F);
+			this.dna[4] = dna[4] + (Rand.nextFloat() < mutationRate ? Rand.nextFloat(2) - 1 : 0F);
+			this.dna[5] = dna[5] + (Rand.nextFloat() < mutationRate ? Rand.nextFloat(0.2F) - 0.1F : 0F);
 		}
+		pos = new Vector2F();
+		vel = Vector2F.randUnitVector().multLocal(this.dna[4]);
+		acc = new Vector2F();
 	}
 	
 	public void update()
 	{
-		health -= 0.005F;
+		ticksExisted++;
+		health -= 0.0025F;
 		
-		if(acc.length() > maxForce)
+		if(acc.length() > dna[5])
 		{
-			acc.normalizeLocal().multLocal(maxForce);
+			acc.normalizeLocal().multLocal(dna[5]);
 		}
 		vel.addLocal(acc);
-		if(vel.length() > maxSpeed)
+		if(vel.length() > dna[4])
 		{
-			vel.normalizeLocal().multLocal(maxSpeed);
+			vel.normalizeLocal().multLocal(dna[4]);
 		}
 		pos.addLocal(vel);
 		acc.zero();
@@ -74,14 +80,15 @@ public class Vehicle implements Cloneable
 	
 	public void paint(G2D g2d, boolean debug)
 	{
-		g2d.pushMatrix();
-		g2d.enable(G2D.G_FILL);
+		g2d.enable(G2D.G_FILL | G2D.G_CENTER);
 
 		g2d.setColor(1F - health, health, 0F);
-		g2d.rotateR(-vel.getAngle() + Math.PI / 2F, pos.x, pos.y);
-		g2d.drawRectangle(pos.x - 10, pos.y - 5, 20, 10);
+		
+		double ang = -vel.getAngle() + Math.PI / 2F;
+		g2d.rotateR(ang, pos.x, pos.y);
+		g2d.drawRectangle(pos.x, pos.y, 30, 15);
 
-		g2d.disable(G2D.G_FILL);
+		g2d.disable(G2D.G_FILL | G2D.G_CENTER);
 
 		if(debug)
 		{
@@ -90,8 +97,8 @@ public class Vehicle implements Cloneable
 			g2d.setColor(Color.RED);
 			g2d.drawLine(pos.x, pos.y, pos.x + dna[1] * 20, pos.y);
 		}
-	
-		g2d.popMatrix();
+
+		g2d.rotateR(-ang, pos.x, pos.y);
 		
 		if(debug)
 		{
@@ -126,11 +133,11 @@ public class Vehicle implements Cloneable
 			Vector2F v = lst.get(i);
 			float dst = v.distance(pos);
 			
-			if(dst < maxSpeed)
+			if(dst < dna[4])
 			{
 				lst.remove(i);
 				i--;
-				health = MathUtil.clamp(health + nutrition, 1F, 0F);
+				health = MathUtil.between(0F, health + nutrition, 1F);
 			}
 			else if(dst < minDst && dst < perception)
 			{
@@ -150,44 +157,44 @@ public class Vehicle implements Cloneable
 	public Vector2F seek(Vector2F target)
 	{
 		Vector2F desired = target.subtract(pos);
-		if(desired.length() > maxSpeed)
+		if(desired.length() > dna[4])
 		{
-			desired.normalizeLocal().multLocal(maxSpeed);
+			desired.normalizeLocal().multLocal(dna[4]);
 		}
 		desired.subtractLocal(vel);
-		if(desired.length() > maxForce)
+		if(desired.length() > dna[5])
 		{
-			desired.normalizeLocal().multLocal(maxForce);
+			desired.normalizeLocal().multLocal(dna[5]);
 		}
 		return desired;
 	}
 	
 	public void checkBoundaries()
 	{
-		float thresh = 25;
+		float thresh = -5;
 		Vector2F desired = null;
 		
 		if(pos.x < thresh)
 		{
-			desired = new Vector2F(maxSpeed, vel.y);
+			desired = new Vector2F(dna[4], vel.y);
 		}
-		else if(pos.x > Main.WIDTH - thresh)
+		else if(pos.x > game.game.width - thresh)
 		{
-			desired = new Vector2F(-maxSpeed, vel.y);
+			desired = new Vector2F(-dna[4], vel.y);
 		}
 
 		if(pos.y < thresh)
 		{
-			desired = new Vector2F(vel.x, maxSpeed);
+			desired = new Vector2F(vel.x, dna[4]);
 		}
-		else if(pos.y > Main.HEIGHT - thresh)
+		else if(pos.y > game.game.height - thresh)
 		{
-			desired = new Vector2F(vel.x, -maxSpeed);
+			desired = new Vector2F(vel.x, -dna[4]);
 		}
 		
 		if(desired != null)
 		{
-			desired.normalizeLocal().multLocal(maxSpeed);
+			desired.normalizeLocal().multLocal(dna[4]);
 			acc.addLocal(desired.subtractLocal(vel));
 		}
 	}
@@ -199,7 +206,7 @@ public class Vehicle implements Cloneable
 	
 	public Vehicle clone()
 	{
-		Vehicle v = new Vehicle(dna);
+		Vehicle v = new Vehicle(game, dna);
 		v.pos.set(pos);
 		return v;
 	}

@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -16,6 +16,7 @@ package com.hk.math.vector;
 
 import java.io.Serializable;
 
+// https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/CocoaDrawingGuide/Transforms/Transforms.html
 public final class Matrix3F implements Serializable, Cloneable
 {
 	public float m00, m01, m02, m10, m11, m12, m20, m21, m22;
@@ -764,6 +765,13 @@ public final class Matrix3F implements Serializable, Cloneable
 		m.m12 = h * indet;
 		m.m22 = i * indet;
 		return m;
+	}
+	
+	public Vector2F apply(Vector2F def)
+	{
+		if(def == null) def = new Vector2F(0, 1);
+		
+		return def;
 	}
 
 	@Override

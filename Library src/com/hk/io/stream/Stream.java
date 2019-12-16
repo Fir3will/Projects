@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -36,12 +36,12 @@ public interface Stream extends Closeable
 	public void writeDouble(double o) throws StreamException;
 
 	public void writeUTFString(String o) throws StreamException;
+	
+	public void writeRawString(String o) throws StreamException;
 
 	public void writeSerializable(Serializable o) throws StreamException;
 
 	public void writeBytes(byte[] arr) throws StreamException;
-
-	public void writeBytes(byte[] arr, int off, int len) throws StreamException;
 
 	public boolean readBoolean() throws StreamException;
 
@@ -60,12 +60,12 @@ public interface Stream extends Closeable
 	public double readDouble() throws StreamException;
 
 	public String readUTFString() throws StreamException;
+	
+	public String readRawString() throws StreamException;
 
-	public Serializable readSerializable() throws StreamException;
+	public <T> T readSerializable(Class<T> cls) throws StreamException;
 
-	public void readBytes(byte[] arr) throws StreamException;
-
-	public void readBytes(byte[] arr, int off, int len) throws StreamException;
+	public byte[] readBytes() throws StreamException;
 
 	@Override
 	public void close() throws StreamException;
@@ -79,6 +79,7 @@ public interface Stream extends Closeable
 	static final byte TYPE_LONG = 6;
 	static final byte TYPE_DOUBLE = 7;
 	static final byte TYPE_UTF_STRING = 8;
-	static final byte TYPE_SERIALIZABLE = 9;
-	static final byte TYPE_BYTES = 10;
+	static final byte TYPE_RAW_STRING = 9;
+	static final byte TYPE_SERIALIZABLE = 10;
+	static final byte TYPE_BYTES = 11;
 }

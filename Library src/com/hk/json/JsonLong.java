@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -18,30 +18,23 @@ public class JsonLong extends JsonPrimitive
 {
 	private long value;
 
+	public JsonLong()
+	{
+		this(0L);
+	}
+
 	public JsonLong(long value)
 	{
-		this(value, true);
-	}
-
-	public JsonLong(boolean mutable)
-	{
-		this(0, mutable);
-	}
-
-	public JsonLong(long value, boolean mutable)
-	{
-		super(mutable);
 		this.value = value;
 	}
 
-	public long getValue()
+	public long get()
 	{
 		return value;
 	}
 
-	public JsonLong setValue(long value)
+	public JsonLong set(long value)
 	{
-		if (!isMutable()) throw isntMutable();
 		this.value = value;
 		return this;
 	}

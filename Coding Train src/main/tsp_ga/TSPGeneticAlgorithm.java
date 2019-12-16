@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -18,16 +18,16 @@ import java.awt.Color;
 import java.util.Arrays;
 
 import com.hk.array.ArrayUtil;
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.Rand;
 import com.hk.math.vector.Vector2F;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
-public class TSPGeneticAlgorithm extends Game
+public class TSPGeneticAlgorithm extends GuiScreen
 {
 	private final int amtOfCities = 50;
 	private final int popSize = 100;
@@ -38,12 +38,13 @@ public class TSPGeneticAlgorithm extends Game
 	private final double[] populationFitness;
 	private int generation = 0;
 	
-	public TSPGeneticAlgorithm()
+	public TSPGeneticAlgorithm(Game game)
 	{
+		super(game);
 		cities = new Vector2F[amtOfCities];
 		for(int i = 0; i < cities.length; i++)
 		{
-			cities[i] = new Vector2F(Rand.nextFloat(Main.WIDTH), Rand.nextFloat(Main.HEIGHT));
+			cities[i] = new Vector2F(Rand.nextFloat(game.width), Rand.nextFloat(game.height));
 		}
 		bestOrder = new int[amtOfCities];
 		population = new int[popSize][amtOfCities];
@@ -59,7 +60,7 @@ public class TSPGeneticAlgorithm extends Game
 	}
 	
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
 		calculateFitness();
 		normalizeFitness();
@@ -182,11 +183,7 @@ public class TSPGeneticAlgorithm extends Game
 	
 	public static void main(String[] args)
 	{
-		System.setProperty("Main.WIDTH", "1024");
-		System.setProperty("Main.HEIGHT", "768");
-		TSPGeneticAlgorithm game = new TSPGeneticAlgorithm();
-		
-		GameSettings settings = new GameSettings();
+		Settings settings = new Settings();
 		settings.title = "Traveling Salesperson (Genetic Algorithm)";
 		settings.version = "0.0.1";
 		settings.quality = Quality.POOR;
@@ -195,7 +192,9 @@ public class TSPGeneticAlgorithm extends Game
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
-		
-		Main.initialize(game, settings);
+
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new TSPGeneticAlgorithm(frame.game));
+		frame.launch();
 	}
 }

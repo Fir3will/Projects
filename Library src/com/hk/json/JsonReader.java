@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -154,7 +154,7 @@ class JsonReader
 			{
 				if (name == null)
 				{
-					name = beginString(itr, input).getPrimitive().getString().getValue();
+					name = beginString(itr, input).get();
 					continue;
 				}
 				else
@@ -193,11 +193,7 @@ class JsonReader
 					name = null;
 					continue;
 				}
-				else
-				{
-					amt++;
-					continue;
-				}
+				else throw new JsonFormatException(input, itr.getIndex());
 			}
 			else if (c == '}')
 			{

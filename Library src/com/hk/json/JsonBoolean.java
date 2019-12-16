@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -18,25 +18,23 @@ public class JsonBoolean extends JsonPrimitive
 {
 	private boolean value;
 
-	public JsonBoolean(boolean value)
+	public JsonBoolean()
 	{
-		this(value, true);
+		this(false);
 	}
 
-	public JsonBoolean(boolean value, boolean mutable)
+	public JsonBoolean(boolean value)
 	{
-		super(mutable);
 		this.value = value;
 	}
 
-	public boolean getValue()
+	public boolean get()
 	{
 		return value;
 	}
 
-	public JsonBoolean setValue(boolean value)
+	public JsonBoolean set(boolean value)
 	{
-		if (!isMutable()) throw isntMutable();
 		this.value = value;
 		return this;
 	}

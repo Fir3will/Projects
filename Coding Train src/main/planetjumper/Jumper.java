@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -20,26 +20,29 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import main.G2D;
-import main.Game;
-import main.GameSettings;
-import main.GameSettings.Quality;
-import main.Main;
-
+import com.hk.g2d.G2D;
+import com.hk.g2d.Game;
+import com.hk.g2d.GameFrame;
+import com.hk.g2d.GuiScreen;
+import com.hk.g2d.Settings;
+import com.hk.g2d.Settings.Quality;
 import com.hk.math.FloatMath;
 import com.hk.math.MathUtil;
 import com.hk.math.vector.Vector2F;
 
-public class Jumper extends Game
+public class Jumper extends GuiScreen
 {
 	public static final float G = 0.1F;
 	public final List<Planetoid> planets;
 	public final Player player;
 	private final Vector2F[] path;
 	private boolean sas, prograde, retrograde;
+	private int speed, limit;
 	
-	public Jumper()
+	public Jumper(Game game)
 	{
+		super(game);
+		
 		planets = new ArrayList<>();
 		player = new Player(this);
 		player.pos.set(-200, 0);
@@ -55,45 +58,62 @@ public class Jumper extends Game
 		{
 			path[i] = new Vector2F();
 		}
+		speed = 1;
 	}
 	
 	@Override
-	public void update(int ticks)
+	public void update(double delta)
 	{
-		player.updatePlayer(ticks);
-		
-		for(int i = 0; i < planets.size(); i++)
+		for(int i = 0; i < speed; i++)
 		{
-			player.acc.addLocal(planets.get(i).acceleration(player.pos));
+			update2(delta);
 		}
 		
 		Vector2F pos = player.pos.clone();
 		Vector2F vel = player.vel.clone();
 
+		limit = path.length;
 		int amt = 20;
-//		int amt = 2;
-		for(int i = 0; i < path.length * amt; i++)
+		int max = path.length * amt;
+		int i = 0;
+		for(; i < max; i++)
 		{
 			for(int j = 0; j < planets.size(); j++)
 			{
 				vel.addLocal(planets.get(j).acceleration(pos));
 			}
 			pos.addLocal(vel);
+			if(i > 20 && pos.distanceSquared(player.pos) < 4)
+			{
+				max = Math.min(max, i + 20);
+				break;
+			}
 			if(i % amt == 0)
 			{
 				path[i / amt].set(pos);
 			}
 		}
+		limit = i / amt;
+	}
+	
+	public void update2(double delta)
+	{
+		player.updatePlayer(delta);
 		
-		if(sas)
+		for(int i = 0; i < planets.size(); i++)
 		{
-			player.rotVel += -MathUtil.sign(player.rotVel) / 50F;
+			player.acc.addLocal(planets.get(i).acceleration(player.pos));
+		}
+		
+		if(sas && player.rotSide == 0)
+		{
+			player.rotVel *= 0.05 * delta + 0.95;
 			if(prograde || retrograde)
 			{
 				float ang = FloatMath.toDegrees(-player.vel.getAngle()) + 180F;
-				float f = (prograde ? ang : ang + 180F) - player.rot;
-				f  = MathUtil.clamp(f, 10F, -10F);
-				player.rotVel = MathUtil.lerp(player.rotVel, f, 0.9F);
+				float f = (prograde ? ang + 90 : ang - 90) - player.rot;
+				f  = MathUtil.between(-150F, f, 150F);
+				player.rotVel = (float) MathUtil.lerp(player.rotVel, f, 0.1F * delta + 0.9F);
 			}
 		}
 	}
@@ -116,19 +136,22 @@ public class Jumper extends Game
 		g2d.translate(g2d.width / 2D - player.pos.x, g2d.height / 2D - player.pos.y);
 		
 		g2d.setColor(0, 0, 100);
-		for(int i = 0; i < path.length - 1; i++)
+		g2d.setLineWidth(2);
+		for(int i = 0; i < Math.min(limit, path.length - 1); i++)
 		{
 			Vector2F a = path[i];
-			Vector2F b = path[i + 1];
+			Vector2F b = i == limit - 1 ? path[0] : path[i + 1];
 			g2d.drawLine(a.x, a.y, b.x, b.y);
 		}
 		
 		g2d.setColor(Color.WHITE);
+		g2d.setLineWidth(4);
 		for(int i = 0; i < planets.size(); i++)
 		{
 			Planetoid p = planets.get(i);
 			p.paintPlanet(g2d);
 		}
+		g2d.setLineWidth(1);
 		
 		player.paintPlayer(g2d);
 		g2d.popMatrix();
@@ -159,28 +182,46 @@ public class Jumper extends Game
 		}
 		g2d.drawString("Rot: " + player.rot + ", Vel: " + player.rotVel, 5, 50);
 		g2d.drawString(FloatMath.toDegrees(-player.vel.getAngle()) + 180F, 5, 65);
+
+		g2d.drawString(speed + "x", 5, game.height - 5);
 	}
 	
 	public void key(int keyCode, char keyChar, boolean pressed)
 	{
-		if(pressed)
+		if(keyCode == KeyEvent.VK_1)
 		{
-			if(keyCode == KeyEvent.VK_A)
-			{
-				player.rotVel += 0.05F;
-			}
-			else if(keyCode == KeyEvent.VK_D)
-			{
-				player.rotVel -= 0.05F;
-			}
-			else if(keyCode == KeyEvent.VK_SPACE)
-			{
-				Vector2F v = new Vector2F(0.01F, 0F);
-				v.rotateAround(FloatMath.toRadians(player.rot), true);
-				player.acc.addLocal(v);
-			}
+			speed = 1;
 		}
-		else
+		if(keyCode == KeyEvent.VK_2)
+		{
+			speed = 5;
+		}
+		if(keyCode == KeyEvent.VK_3)
+		{
+			speed = 10;
+		}
+		if(keyCode == KeyEvent.VK_4)
+		{
+			speed = 25;
+		}
+		if(keyCode == KeyEvent.VK_5)
+		{
+			speed = 100;
+		}
+		
+		if(keyCode == KeyEvent.VK_SPACE)
+		{
+			player.boost = pressed;
+		}
+		else if(keyCode == KeyEvent.VK_A)
+		{
+			player.rotSide = pressed ? 1 : 0;
+		}
+		else if(keyCode == KeyEvent.VK_D)
+		{
+			player.rotSide = pressed ? -1 : 0;
+		}
+		if(!pressed)
 		{
 			if(keyCode == KeyEvent.VK_S)
 			{
@@ -207,21 +248,19 @@ public class Jumper extends Game
 	}
 	
 	public static void main(String[] args)
-	{
-		Jumper game = new Jumper();
-		
-		GameSettings settings = new GameSettings();
+	{		
+		Settings settings = new Settings();
 		settings.title = "Planet Jumper";
 		settings.version = "0.0.1";
 		settings.quality = Quality.GOOD;
-		settings.width = 1600;
-		settings.height = 900;
+		settings.width = 1280;
+		settings.height = 720;
 		settings.showFPS = true;
 		settings.background = Color.BLACK;
 		settings.maxFPS = -1;
 
-		System.setProperty("Main.WIDTH", String.valueOf(settings.width));
-		System.setProperty("Main.HEIGHT", String.valueOf(settings.height));
-		Main.initialize(game, settings);
+		GameFrame frame = GameFrame.create(settings);
+		frame.game.setCurrentScreen(new Jumper(frame.game));
+		frame.launch();
 	}
 }

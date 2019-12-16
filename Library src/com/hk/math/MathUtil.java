@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -13,6 +13,8 @@
  * from "Fir3will".
  **************************************************************************/
 package com.hk.math;
+
+import com.hk.str.StringUtil;
 
 public class MathUtil
 {
@@ -35,7 +37,11 @@ public class MathUtil
 	//		}
 	//		return null;
 	//	}
-
+	public static double deg2rad = Math.PI / 180;
+	public static double rad2deg = 180 / Math.PI;
+	public static float deg2radF = (float) deg2rad;
+	public static float rad2degF = (float) rad2deg;
+	
 	public static double cube(double a)
 	{
 		return a * a * a;
@@ -62,16 +68,6 @@ public class MathUtil
 	}
 
 	public static float determinant(float m00, float m01, float m10, float m11)
-	{
-		return m00 * m11 - m10 * m01;
-	}
-
-	public static int determinant(int m00, int m01, int m10, int m11)
-	{
-		return m00 * m11 - m10 * m01;
-	}
-
-	public static long determinant(long m00, long m01, long m10, long m11)
 	{
 		return m00 * m11 - m10 * m01;
 	}
@@ -145,32 +141,68 @@ public class MathUtil
 	{
 		return (byte) (a < 0 ? -1 : a > 0 ? 1 : 0);
 	}
+	
+	public static double between(double min, double val, double max)
+	{
+		return val > max ? max : val < min ? min : val;
+	}
+	
+	public static float between(float min, float val, float max)
+	{
+		return val > max ? max : val < min ? min : val;
+	}
+	
+	public static int between(int min, int val, int max)
+	{
+		return val > max ? max : val < min ? min : val;
+	}
+	
+	public static long between(long min, long val, long max)
+	{
+		return val > max ? max : val < min ? min : val;
+	}
+	
+	public static short between(short min, short val, short max)
+	{
+		return val > max ? max : val < min ? min : val;
+	}
+	
+	public static byte between(byte min, byte val, byte max)
+	{
+		return val > max ? max : val < min ? min : val;
+	}
 
+	@Deprecated
 	public static double clamp(double val, double max, double min)
 	{
 		return val > max ? max : val < min ? min : val;
 	}
 
+	@Deprecated
 	public static float clamp(float val, float max, float min)
 	{
 		return val > max ? max : val < min ? min : val;
 	}
 
+	@Deprecated
 	public static int clamp(int val, int max, int min)
 	{
 		return val > max ? max : val < min ? min : val;
 	}
 
+	@Deprecated
 	public static long clamp(long val, long max, long min)
 	{
 		return val > max ? max : val < min ? min : val;
 	}
 
+	@Deprecated
 	public static short clamp(short val, short max, short min)
 	{
 		return val > max ? max : val < min ? min : val;
 	}
 
+	@Deprecated
 	public static byte clamp(byte val, byte max, byte min)
 	{
 		return val > max ? max : val < min ? min : val;
@@ -229,39 +261,35 @@ public class MathUtil
 
 	public static double lerp(double a, double b, double amt)
 	{
-		amt = clamp(amt, 1F, 0F);
+		amt = between(0, amt, 1);
 		return a * amt + b * (1D - amt);
 	}
 
 	public static float lerp(float a, float b, float amt)
 	{
-		amt = clamp(amt, 1F, 0F);
+		amt = between(0, amt, 1);
 		return a * amt + b * (1F - amt);
 	}
 	
 	public static String toProperByteHex(long n)
 	{
-		return toProperHex(Long.MAX_VALUE & n, 2);
+		return toProperHex(n, 2);
 	}
 	
 	public static String toProperHex(long n)
 	{
-		return toProperHex(Long.MAX_VALUE & n, 8);
+		return toProperHex(n, 8);
 	}
 	
 	public static String toProperLongHex(long n)
 	{
-		return toProperHex(Long.MAX_VALUE & n, 16);
+		return toProperHex(n, 16);
 	}
 	
 	public static String toProperHex(long n, int amt)
 	{
-		String s = Long.toHexString(Long.MAX_VALUE & n);
-		while(s.length() < amt)
-		{
-			s = '0' + s;
-		}
-		return "0x" + s.toUpperCase();
+		String s = Long.toHexString(n | 0L).toUpperCase();
+		return "0x" + StringUtil.repeat("0", amt - s.length()) + s;
 	}
 
 	public static float max(float... fs)
@@ -296,6 +324,31 @@ public class MathUtil
 			}
 		}
 		return max;
+	}
+
+	public static double sigmoid(double t)
+	{
+		return 1D / (1D + Math.exp(-t));
+	}
+
+	public static float sigmoid(float t)
+	{
+		return 1F / (1F + FloatMath.exp(-t));
+	}
+	
+	public static float map(float val, float srcMin, float srcMax, float dstMin, float dstMax)
+	{
+		return (val - srcMin) / (srcMax - srcMin) * (dstMax - dstMin) + dstMin;
+	}
+	
+	public static double map(double val, double srcMin, double srcMax, double dstMin, double dstMax)
+	{
+		return (val - srcMin) / (srcMax - srcMin) * (dstMax - dstMin) + dstMin;
+	}
+	
+	public static int map(int val, int srcMin, int srcMax, int dstMin, int dstMax)
+	{
+		return (int) map((float) val, srcMin, srcMax, dstMin, dstMax);
 	}
 
 	private MathUtil()

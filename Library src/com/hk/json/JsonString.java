@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -20,30 +20,23 @@ public class JsonString extends JsonPrimitive
 {
 	private String value;
 
+	public JsonString()
+	{
+		this("");
+	}
+
 	public JsonString(String value)
 	{
-		this(value, true);
-	}
-
-	public JsonString(boolean mutable)
-	{
-		this("", mutable);
-	}
-
-	public JsonString(String value, boolean mutable)
-	{
-		super(mutable);
 		this.value = value;
 	}
 
-	public String getValue()
+	public String get()
 	{
 		return value;
 	}
 
-	public JsonString setValue(String value)
+	public JsonString set(String value)
 	{
-		if (!isMutable()) throw isntMutable();
 		this.value = value;
 		return this;
 	}

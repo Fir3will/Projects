@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -21,13 +21,11 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
-import com.hk.math.PrimitiveUtil;
-
 public class InStream implements Stream
 {
 	private final boolean errorCheck;
-	private boolean closed;
 	private final InputStream in;
+	private boolean closed;
 
 	public InStream(InputStream in)
 	{
@@ -95,6 +93,12 @@ public class InStream implements Stream
 	}
 
 	@Override
+	public void writeRawString(String o) throws StreamException
+	{
+		throw new StreamException("Can't write to this stream");
+	}
+
+	@Override
 	public void writeSerializable(Serializable o) throws StreamException
 	{
 		throw new StreamException("Can't write to this stream");
@@ -107,105 +111,160 @@ public class InStream implements Stream
 	}
 
 	@Override
-	public void writeBytes(byte[] arr, int off, int len) throws StreamException
-	{
-		throw new StreamException("Can't write to this stream");
-	}
-
-	@Override
 	public boolean readBoolean() throws StreamException
 	{
-		byte type = read();
-		if (type == TYPE_BOOLEAN)
+		checkType(TYPE_BOOLEAN, "Boolean");
+		byte o = read();
+		if(o == 37 || o == 66)
 		{
-			return read() == 1;
+			return o == 37;
 		}
-		throw new StreamException("Boolean not expected");
+		throw new StreamException("Corrupted data");
 	}
 
 	@Override
 	public byte readByte() throws StreamException
 	{
-		byte type = read();
-		if (type == TYPE_BYTE)
-		{
-			return read();
-		}
-		throw new StreamException("Byte not expected");
+		checkType(TYPE_BYTE, "Byte");
+		return read();
 	}
 
 	@Override
 	public short readShort() throws StreamException
 	{
-		byte type = read();
-		if (type == TYPE_SHORT)
-		{
-			byte a = read();
-			byte b = read();
-			return (short) (a | (b & 0xFF) << 8);
-		}
-		throw new StreamException("Short not expected");
+		checkType(TYPE_SHORT, "Short");
+		short o = 0;
+		o |= (read() & 0xFF) << 8;
+		o |= (read() & 0xFF) << 0;
+		return o;
 	}
 
 	@Override
 	public int readInt() throws StreamException
 	{
 		checkType(TYPE_INT, "Integer");
-		return PrimitiveUtil.bytesToInt(0, get(4));
+		int o = 0;
+		o |= (read() & 0xFF) << 24;
+		o |= (read() & 0xFF) << 16;
+		o |= (read() & 0xFF) <<  8;
+		o |= (read() & 0xFF) <<  0;
+		return o;
 	}
 
 	@Override
 	public float readFloat() throws StreamException
 	{
 		checkType(TYPE_FLOAT, "Float");
-		return Float.intBitsToFloat(PrimitiveUtil.bytesToInt(0, get(4)));
+		int o = 0;
+		o |= (read() & 0xFF) << 24;
+		o |= (read() & 0xFF) << 16;
+		o |= (read() & 0xFF) <<  8;
+		o |= (read() & 0xFF) <<  0;
+		return Float.intBitsToFloat(o);
 	}
 
 	@Override
 	public char readCharacter() throws StreamException
 	{
 		checkType(TYPE_CHAR, "Character");
-		return (char) read();
+		int o = 0;
+		o |= (read() & 0xFF) <<  8;
+		o |= (read() & 0xFF) <<  0;
+		return (char) o;
 	}
 
 	@Override
 	public long readLong() throws StreamException
 	{
 		checkType(TYPE_LONG, "Long");
-		return PrimitiveUtil.bytesToLong(0, get(8));
+		long o = 0;
+		o |= (read() & 0xFFL) << 56;
+		o |= (read() & 0xFFL) << 48;
+		o |= (read() & 0xFFL) << 40;
+		o |= (read() & 0xFFL) << 32;
+		o |= (read() & 0xFFL) << 24;
+		o |= (read() & 0xFFL) << 16;
+		o |= (read() & 0xFFL) <<  8;
+		o |= (read() & 0xFFL) <<  0;
+		return o;
 	}
 
 	@Override
 	public double readDouble() throws StreamException
 	{
 		checkType(TYPE_DOUBLE, "Double");
-		return Double.longBitsToDouble(PrimitiveUtil.bytesToLong(0, get(8)));
+		long o = 0;
+		o |= (read() & 0xFFL) << 56;
+		o |= (read() & 0xFFL) << 48;
+		o |= (read() & 0xFFL) << 40;
+		o |= (read() & 0xFFL) << 32;
+		o |= (read() & 0xFFL) << 24;
+		o |= (read() & 0xFFL) << 16;
+		o |= (read() & 0xFFL) <<  8;
+		o |= (read() & 0xFFL) <<  0;
+		return Double.longBitsToDouble(o);
 	}
 
 	@Override
 	public String readUTFString() throws StreamException
 	{
 		checkType(TYPE_UTF_STRING, "UTF String");
-		int length = PrimitiveUtil.bytesToInt(0, get(4));
-		byte[] arr = get(length, true);
+		int o = 0;
+		o |= (read() & 0xFF) << 24;
+		o |= (read() & 0xFF) << 16;
+		o |= (read() & 0xFF) <<  8;
+		o |= (read() & 0xFF) <<  0;
+		byte[] arr = new byte[o];
+		for(int i = 0; i < o; i++)
+		{
+			arr[i] = (byte) (~read() & 0xFF);
+		}
 		return new String(arr, StandardCharsets.UTF_8);
 	}
 
 	@Override
-	public Serializable readSerializable() throws StreamException
+	public String readRawString() throws StreamException
 	{
-		checkType(TYPE_SERIALIZABLE, "Serializable");
-		int length = PrimitiveUtil.bytesToInt(0, get(4));
-		byte[] arr = get(length, true);
-		ByteArrayInputStream bais = new ByteArrayInputStream(arr);
-		Serializable o = null;
+		checkType(TYPE_RAW_STRING, "Raw String");
+		int o = 0;
+		o |= (read() & 0xFF) << 24;
+		o |= (read() & 0xFF) << 16;
+		o |= (read() & 0xFF) <<  8;
+		o |= (read() & 0xFF) <<  0;
+		char[] arr = new char[o];
+		for(int i = 0; i < o; i++)
+		{
+			int o2 = 0;
+			o2 |= (read() & 0xFF) <<  8;
+			o2 |= (read() & 0xFF) <<  0;
+			arr[i] = (char) o2;
+		}
+		return new String(arr);
+	}
+
+	@Override
+	public <T> T readSerializable(Class<T> cls) throws StreamException
+	{
+		int len = 0;
+		len |= (read() & 0xFF) << 24;
+		len |= (read() & 0xFF) << 16;
+		len |= (read() & 0xFF) <<  8;
+		len |= (read() & 0xFF) <<  0;
+		byte[] arr = new byte[len];
+		for(int i = 0; i < len; i++)
+		{
+			arr[i] = (byte) (~read() & 0xFF);
+		}
+		ByteArrayInputStream bin = new ByteArrayInputStream(arr);
+		T o = null;
 		try
 		{
-			ObjectInputStream ois = new ObjectInputStream(bais);
-			o = (Serializable) ois.readObject();
-			ois.close();
+			ObjectInputStream oin = new ObjectInputStream(bin);
+			o = cls.cast(oin.readObject());
+			oin.close();
+			bin.close();
 		}
-		catch (Exception e)
+		catch (IOException | ClassNotFoundException e)
 		{
 			throw new StreamException(e);
 		}
@@ -213,39 +272,29 @@ public class InStream implements Stream
 	}
 
 	@Override
-	public void readBytes(byte[] arr) throws StreamException
-	{
-		readBytes(arr, 0, arr.length);
-	}
-
-	@Override
-	public void readBytes(byte[] arr, int off, int len) throws StreamException
+	public byte[] readBytes() throws StreamException
 	{
 		checkType(TYPE_BYTES, "Bytes");
-		for (int i = off; i < off + len; i++)
+		int o = 0;
+		o |= (read() & 0xFF) << 24;
+		o |= (read() & 0xFF) << 16;
+		o |= (read() & 0xFF) <<  8;
+		o |= (read() & 0xFF) <<  0;
+		byte[] arr = new byte[o];
+		for(int i = 0; i < o; i++)
 		{
 			arr[i] = read();
-		}
-	}
-	
-	private byte[] get(int amt) throws StreamException
-	{
-		return get(amt, false);
-	}
-	
-	private byte[] get(int amt, boolean flip) throws StreamException
-	{
-		byte[] arr = new byte[amt];
-		for(int i = 0; i < amt; i++)
-		{
-			arr[i] = (flip ? (byte) ~read() : read());
 		}
 		return arr;
 	}
 	
 	private void checkType(byte type, String name) throws StreamException
 	{
-		if(errorCheck && read() != type) throw new StreamException(name + " not expected");
+		byte t = errorCheck ? read() : type;
+		if(t != type)
+		{
+			throw new StreamException(name + " not expected, got " + t);
+		}
 	}
 
 	@Override

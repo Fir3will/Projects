@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -20,15 +20,12 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
-import com.hk.math.PrimitiveUtil;
 
 public class OutStream implements Stream
 {
 	private final boolean errorCheck;
-	private boolean closed;
 	private final OutputStream out;
+	private boolean closed;
 
 	public OutStream(OutputStream out)
 	{
@@ -44,9 +41,9 @@ public class OutStream implements Stream
 	@Override
 	public void writeBoolean(boolean o) throws StreamException
 	{
-		byte b = (byte) (o ? 1 : 0);
-
 		if(errorCheck) write(TYPE_BOOLEAN);
+
+		byte b = (byte) (o ? 37 : 66);
 		write(b);
 	}
 
@@ -61,85 +58,142 @@ public class OutStream implements Stream
 	public void writeShort(short o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_SHORT);
-		set(PrimitiveUtil.shortToBytes(o));
+		write((byte) (o >> 8 & 0xFF));
+		write((byte) (o >> 0 & 0xFF));
 	}
 
 	@Override
 	public void writeInt(int o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_INT);
-		set(PrimitiveUtil.intToBytes(o));
+		write((byte) (o >> 24 & 0xFF));
+		write((byte) (o >> 16 & 0xFF));
+		write((byte) (o >>  8 & 0xFF));
+		write((byte) (o >>  0 & 0xFF));
 	}
 
 	@Override
 	public void writeFloat(float o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_FLOAT);
-		int i = Float.floatToIntBits(o);
-		set(PrimitiveUtil.intToBytes(i));
+		int o2 = Float.floatToIntBits(o);
+		write((byte) (o2 >> 24 & 0xFF));
+		write((byte) (o2 >> 16 & 0xFF));
+		write((byte) (o2 >>  8 & 0xFF));
+		write((byte) (o2 >>  0 & 0xFF));
 	}
 
 	@Override
 	public void writeCharacter(char o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_CHAR);
-		write((byte) o);
+		int o2 = (int) o;
+		write((byte) (o2 >> 8 & 0xFF));
+		write((byte) (o2 >> 0 & 0xFF));
 	}
 
 	@Override
 	public void writeLong(long o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_LONG);
-		set(PrimitiveUtil.longToBytes(o));
+		write((byte) (o >> 56 & 0xFF));
+		write((byte) (o >> 48 & 0xFF));
+		write((byte) (o >> 40 & 0xFF));
+		write((byte) (o >> 32 & 0xFF));
+		write((byte) (o >> 24 & 0xFF));
+		write((byte) (o >> 16 & 0xFF));
+		write((byte) (o >>  8 & 0xFF));
+		write((byte) (o >>  0 & 0xFF));
 	}
 
 	@Override
 	public void writeDouble(double o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_DOUBLE);
-		long l = Double.doubleToLongBits(o);
-		set(PrimitiveUtil.longToBytes(l));
+		long o2 = Double.doubleToLongBits(o);
+		write((byte) (o2 >> 56 & 0xFF));
+		write((byte) (o2 >> 48 & 0xFF));
+		write((byte) (o2 >> 40 & 0xFF));
+		write((byte) (o2 >> 32 & 0xFF));
+		write((byte) (o2 >> 24 & 0xFF));
+		write((byte) (o2 >> 16 & 0xFF));
+		write((byte) (o2 >>  8 & 0xFF));
+		write((byte) (o2 >>  0 & 0xFF));
 	}
 
 	@Override
 	public void writeUTFString(String o) throws StreamException
 	{
 		if(errorCheck) write(TYPE_UTF_STRING);
-		set(PrimitiveUtil.intToBytes(o.length()));
 		byte[] bs = o.getBytes(StandardCharsets.UTF_8);
-		set(bs, true);
+		int len = bs.length;
+		write((byte) (len >> 24 & 0xFF));
+		write((byte) (len >> 16 & 0xFF));
+		write((byte) (len >> 8 & 0xFF));
+		write((byte) (len >> 0 & 0xFF));
+		for(int i = 0; i < len; i++)
+		{
+			write((byte) (~bs[i] & 0xFF));
+		}
+	}
+	
+	@Override
+	public void writeRawString(String o) throws StreamException
+	{
+		if(errorCheck) write(TYPE_RAW_STRING);
+		int len = o.length();
+		write((byte) (len >> 24 & 0xFF));
+		write((byte) (len >> 16 & 0xFF));
+		write((byte) (len >> 8 & 0xFF));
+		write((byte) (len >> 0 & 0xFF));
+		for(int i = 0; i < len; i++)
+		{
+			int o2 = (int) o.charAt(i);
+			write((byte) (o2 >> 8 & 0xFF));
+			write((byte) (o2 >> 0 & 0xFF));
+		}
 	}
 
 	@Override
 	public void writeSerializable(Serializable o) throws StreamException
 	{
-		if(errorCheck) write(TYPE_SERIALIZABLE);
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		try
 		{
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
-			oos.writeObject(o);
-			oos.close();
+			ObjectOutputStream oout = new ObjectOutputStream(bout);
+			oout.writeObject(o);
+			oout.close();
+			bout.close();
 		}
-		catch (IOException e)
+		catch(IOException e)
 		{
 			throw new StreamException(e);
 		}
-
-		set(baos.toByteArray(), true);
+		byte[] arr = bout.toByteArray();
+		int len = arr.length;
+		write((byte) (len >> 24 & 0xFF));
+		write((byte) (len >> 16 & 0xFF));
+		write((byte) (len >> 8 & 0xFF));
+		write((byte) (len >> 0 & 0xFF));
+		for(int i = 0; i < len; i++)
+		{
+			write((byte) (~arr[i] & 0xFF));
+		}
 	}
 
 	@Override
 	public void writeBytes(byte[] arr) throws StreamException
 	{
-		writeBytes(arr, 0, arr.length);
-	}
-
-	@Override
-	public void writeBytes(byte[] arr, int off, int len) throws StreamException
-	{
 		if(errorCheck) write(TYPE_BYTES);
-		set(Arrays.copyOfRange(arr, off, off + len));
+		int len = arr.length;
+		write((byte) (len >> 24 & 0xFF));
+		write((byte) (len >> 16 & 0xFF));
+		write((byte) (len >> 8 & 0xFF));
+		write((byte) (len >> 0 & 0xFF));
+		for(int i = 0; i < len; i++)
+		{
+			write(arr[i]);
+		}
 	}
 
 	@Override
@@ -197,34 +251,21 @@ public class OutStream implements Stream
 	}
 
 	@Override
-	public Serializable readSerializable() throws StreamException
+	public String readRawString() throws StreamException
 	{
 		throw new StreamException("Can't read from this stream");
 	}
 
 	@Override
-	public void readBytes(byte[] arr) throws StreamException
+	public <T> T readSerializable(Class<T> cls) throws StreamException
 	{
 		throw new StreamException("Can't read from this stream");
 	}
 
 	@Override
-	public void readBytes(byte[] arr, int off, int len) throws StreamException
+	public byte[] readBytes() throws StreamException
 	{
 		throw new StreamException("Can't read from this stream");
-	}
-	
-	private void set(byte[] arr) throws StreamException
-	{
-		set(arr, false);
-	}
-	
-	private void set(byte[] arr, boolean flip) throws StreamException
-	{
-		for(int i = 0; i < arr.length; i++)
-		{
-			write(flip ? (byte) ~arr[i] : arr[i]);
-		}
 	}
 
 	@Override

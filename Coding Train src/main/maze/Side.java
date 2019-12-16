@@ -1,6 +1,6 @@
 /**************************************************************************
  *
- * [2017] Fir3will, All Rights Reserved.
+ * [2019] Fir3will, All Rights Reserved.
  *
  * NOTICE:  All information contained herein is, and remains
  * the property of "Fir3will" and its suppliers,
@@ -37,6 +37,30 @@ public enum Side
 			case SOUTH: return NORTH;
 			case WEST: return EAST;
 			case EAST: return WEST;
+		}
+		throw new AssertionError(this);
+	}
+	
+	public Side getClockwise()
+	{
+		switch(this)
+		{
+			case NORTH: return EAST;
+			case EAST: return SOUTH;
+			case SOUTH: return WEST;
+			case WEST: return NORTH;
+		}
+		throw new AssertionError(this);
+	}
+	
+	public Side getCClockwise()
+	{
+		switch(this)
+		{
+			case NORTH: return WEST;
+			case EAST: return NORTH;
+			case SOUTH: return EAST;
+			case WEST: return SOUTH;
 		}
 		throw new AssertionError(this);
 	}
